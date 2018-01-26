@@ -1,0 +1,16 @@
+.root {
+    -fx-background-color: #373737;
+}
+
+.label {
+    -fx-font-family: "Fira Sans Regular";
+    -fx-text-fill: white;
+}
+
+#title_label {
+    -fx-font-size: 50;
+}
+
+#pool_url_label {
+    -fx-font-size: 20;
+}
