@@ -10,7 +10,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.view.mainController" minWidth="900" minHeight="600" prefWidth="900" prefHeight="600" alignment="CENTER" spacing="30">
+<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.view.mainController" minWidth="900" minHeight="700" prefWidth="900" prefHeight="700" alignment="CENTER" spacing="30">
     <Label fx:id="title_label" text="GarlicGUI" textAlignment="CENTER"/>
     <ImageView fx:id="garlic_image" fitHeight="227" fitWidth="227" preserveRatio="true">
         <image>
@@ -18,10 +18,32 @@
         </image>
     </ImageView>
     <HBox alignment="CENTER" spacing="10">
-        <Label fx:id="pool_url_label" text="Pool URL"/>
-        <TextField fx:id="pool_textField" minWidth="400" maxWidth="400"/>
+        <Label fx:id="sgminer_path_Label" text="Path to sgminer.exe"/>
+        <TextField fx:id="sgminer_path_textField" minWidth="400" maxWidth="400" promptText="For example: C:\Users\username\Desktop\sgminer"/>
     </HBox>
-    <Button text="Go" onAction="#load_pool"/>
+    <HBox alignment="CENTER" spacing="10">
+        <Label fx:id="grlc_address_Label" text="Your GRLC address"/>
+        <TextField fx:id="grlc_address_textField" minWidth="400" maxWidth="400" promptText="For example: GJbKUzCbAezNZuQJkahqptvT2CpYywMSFj"/>
+    </HBox>
+    <HBox alignment="CENTER" spacing="10">
+        <Label fx:id="pool_address_Label" text="Pool address"/>
+        <TextField fx:id="pool_address_textField" minWidth="400" maxWidth="400" promptText="For example: stratum+tcp://freshgarlicblocks.net:3032"/>
+    </HBox>
+    <HBox alignment="CENTER" spacing="10">
+        <VBox>
+            <Label fx:id="pool_pword_Label" text="Pool password"/>
+            <TextField fx:id="pool_pword_textField" minWidth="140" maxWidth="140" promptText="Default: none (x)"/>
+        </VBox>
+        <VBox>
+            <Label fx:id="sgminer_intesity_Label" text="Mining intensity"/>
+            <TextField fx:id="sgminer_intesity_textField" minWidth="140" maxWidth="140" promptText="Default: 12"/>
+        </VBox>
+        <VBox>
+            <Label fx:id="sgminer_flags_Label" text="Extra sgminer flags"/>
+            <TextField fx:id="sgminer_flags_textField" minWidth="140" maxWidth="140"/>
+        </VBox>
+    </HBox>
+    <Button text="Go" onAction="#load_miner"/>
     <stylesheets>
         <URL value="@../resources/stylesheets/main.css"/>
     </stylesheets>

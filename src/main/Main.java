@@ -15,7 +15,7 @@ public class Main extends Application {
 
         Parent root = FXMLLoader.load(getClass().getResource("view/mainUI.fxml"));
         primaryStage.setTitle("GarlicGUI");
-        primaryStage.setScene(new Scene(root, 900, 600));
+        primaryStage.setScene(new Scene(root, 900, 700));
         primaryStage.show();
     }
 
