@@ -4,24 +4,29 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import javafx.application.Platform;
+import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
+import javafx.application.Platform;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.control.Button;
 import javafx.util.Duration;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
-import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
-import javafx.scene.control.Button;
 
 public class mainController {
 
     @FXML
-    public void exitApplication(ActionEvent event) {
-        Platform.exit();
-    }
-
+    VBox setup_vbox;
     @FXML
     ImageView garlic_image;
     @FXML
@@ -30,6 +35,13 @@ public class mainController {
     TextField sgminer_intesity_textField, sgminer_flags_textField;
     @FXML
     Button go_button;
+
+    @FXML
+    VBox mining_vbox;
+    @FXML
+    Label hashrate_avg_Label;
+    @FXML
+    Label hashrate_5s_Label;
 
     @FXML
     private void load_miner(ActionEvent event){
@@ -71,8 +83,8 @@ public class mainController {
         rot.setInterpolator(Interpolator.LINEAR);
         rot.play();
 
-        // Run sgminer
-        Thread sgminer_cmd_thread = new Thread(){
+        // Thread for running sgminer.exe (maybe move to class?)
+        new Thread(){
             public void run(){
                 System.out.println("sgminer_cmd_thread started");
 
@@ -84,10 +96,10 @@ public class mainController {
 
                     Runtime.getRuntime().addShutdownHook(new Thread(){
                         public void run() {
-                            // Kill process
+                            // Kill CMD process
                             p.destroy();
                             try {
-                                // Kill sgminer (not always killed by destroy()
+                                // Kill sgminer.exe (the CMD processes child)
                                 Runtime.getRuntime().exec("taskkill /f /t /im sgminer.exe");
                             } catch (IOException e) {
                                 // Do nothing
@@ -95,48 +107,73 @@ public class mainController {
                         }
                     });
 
+                    BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
                     while (true) {
                         // Read lines from output and make sure everything is still working
                         // This is needed for it to work
-                        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                        String line;
-                        line = r.readLine();
-                        if (line == null) {
-                            break;
-                        }
+                        if (r.readLine() == null) break;
                     }
                 } catch (IOException e) {
-                    System.out.println("sgminer proc failed (?)");
+                    new stacktrace_alert().create("IOException", "Error in sgminer.exe thread", "IOException in sgminer.exe thread", e);
                 }
             }
-        };
-        sgminer_cmd_thread.start();
+        }.start();
 
-        // Run API thread
-        Thread sgminer_api_thread = new Thread(){
-            public void run(){
+        // Thread for running API requests (maybe move to class?)
+        new Thread(){
+            public void run() {
+                System.out.println("sgminer_api_thread started");
+
                 try {
-                    System.out.println("sgminer_api_thread started");
                     miner_api_client miner_api = new miner_api_client();
-                    while ( 1==1 ) {
+
+                    while (true) {
                         try {
                             miner_api.startConnection("127.0.0.1", 4028);
                         } catch(IOException e) {
-                            System.out.println("sgminer_api_thread connection failed: " + e);
+                            // TODO: Add a limit to the amount of times it can attempt connection before considering it has failed
                             continue;
                         }
-                        System.out.println("Connected");
+                        System.out.println("Connected to API");
+                        miner_api.stopConnection();
                         break;
                     }
-                    String resp = miner_api.sendMessage("{\"command\": \"summary\"}");
-                    System.out.println(resp);
-                    miner_api.stopConnection();
+
+                    setup_vbox.setVisible(false);
+                    mining_vbox.setVisible(true);
+
+                    // Get summary results from the API every second and update labels
+                    // For some reason the API only responds to 1 request, so a new connection has to be made for each api request
+                    while (true) {
+                        miner_api.startConnection("127.0.0.1", 4028);
+
+                        // TODO: check for memory leak - defining this stuff again and again might break things?
+                        String resp = miner_api.sendMessage("{\"command\": \"summary\"}");
+                        JSONObject api_return = new JSONObject(resp);
+                        JSONArray api_summary_array = (JSONArray) api_return.get("SUMMARY");
+                        Iterator api_summary_itr = api_summary_array.iterator();
+
+                        // Should only over iterate once
+                        while (api_summary_itr.hasNext()) {
+                            Object slide = api_summary_itr.next();
+                            JSONObject api_summary_jsonObject = (JSONObject) slide;
+
+                            Platform.runLater(new Runnable(){
+                                public void run(){
+                                    hashrate_avg_Label.setText(api_summary_jsonObject.get("KHS av").toString());
+                                    hashrate_5s_Label.setText(api_summary_jsonObject.get("KHS 5s").toString());
+                                }
+                            });
+                        }
+
+                        miner_api.stopConnection();
+                    }
+
                 } catch (IOException e) {
-                    System.out.println("Caught IOException in sgminer_api_thread: " + e);
+                    new stacktrace_alert().create("Exception occurred", "Error in sgminer_api_thread", "Exception in sgminer_api_thread", e);
                 }
             }
-        };
-        sgminer_api_thread.start();
+        }.start();
     }
 
     public void initialize() {

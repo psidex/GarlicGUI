@@ -9,42 +9,65 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.StackPane?>
 
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.view.mainController" minWidth="900" minHeight="700" prefWidth="900" prefHeight="700" alignment="CENTER" spacing="30">
-    <Label fx:id="title_label" text="GarlicGUI" textAlignment="CENTER"/>
-    <ImageView fx:id="garlic_image" fitHeight="227" fitWidth="227" preserveRatio="true">
-        <image>
-            <Image url="@../resources/images/garlicoin.png"/>
-        </image>
-    </ImageView>
-    <HBox alignment="CENTER" spacing="10">
-        <Label fx:id="sgminer_path_Label" text="Path to sgminer.exe"/>
-        <TextField fx:id="sgminer_path_textField" minWidth="400" maxWidth="400" promptText="For example: C:\Users\username\Desktop\sgminer"/>
-    </HBox>
-    <HBox alignment="CENTER" spacing="10">
-        <Label fx:id="grlc_address_Label" text="Your GRLC address"/>
-        <TextField fx:id="grlc_address_textField" minWidth="400" maxWidth="400" promptText="For example: GJbKUzCbAezNZuQJkahqptvT2CpYywMSFj"/>
-    </HBox>
-    <HBox alignment="CENTER" spacing="10">
-        <Label fx:id="pool_address_Label" text="Pool address"/>
-        <TextField fx:id="pool_address_textField" minWidth="400" maxWidth="400" promptText="For example: stratum+tcp://freshgarlicblocks.net:3032"/>
-    </HBox>
-    <HBox alignment="CENTER" spacing="10">
-        <VBox>
-            <Label fx:id="pool_pword_Label" text="Pool password"/>
-            <TextField fx:id="pool_pword_textField" minWidth="140" maxWidth="140" promptText="Default: none (x)"/>
-        </VBox>
-        <VBox>
-            <Label fx:id="sgminer_intesity_Label" text="Mining intensity"/>
-            <TextField fx:id="sgminer_intesity_textField" minWidth="140" maxWidth="140" promptText="Default: 12"/>
-        </VBox>
-        <VBox>
-            <Label fx:id="sgminer_flags_Label" text="Extra sgminer flags"/>
-            <TextField fx:id="sgminer_flags_textField" minWidth="140" maxWidth="140"/>
-        </VBox>
-    </HBox>
-    <Button fx:id="go_button" text="Go" onAction="#load_miner"/>
+<StackPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.view.mainController" minWidth="900" minHeight="700" prefWidth="900" prefHeight="700">
+
+    <VBox fx:id="setup_vbox" alignment="CENTER" spacing="30">
+        <Label styleClass="title" text="GarlicGUI" textAlignment="CENTER"/>
+        <ImageView fx:id="garlic_image" fitHeight="227" fitWidth="227" preserveRatio="true">
+            <image>
+                <Image url="@../resources/images/garlicoin.png"/>
+            </image>
+        </ImageView>
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Path to sgminer.exe"/>
+            <TextField fx:id="sgminer_path_textField" minWidth="400" maxWidth="400" promptText="For example: C:\Users\username\Desktop\sgminer"/>
+        </HBox>
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Your GRLC address"/>
+            <TextField fx:id="grlc_address_textField" minWidth="400" maxWidth="400" promptText="For example: GJbKUzCbAezNZuQJkahqptvT2CpYywMSFj"/>
+        </HBox>
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Pool address"/>
+            <TextField fx:id="pool_address_textField" minWidth="400" maxWidth="400" promptText="For example: stratum+tcp://freshgarlicblocks.net:3032"/>
+        </HBox>
+        <HBox alignment="CENTER" spacing="10">
+            <VBox>
+                <Label text="Pool password"/>
+                <TextField fx:id="pool_pword_textField" minWidth="140" maxWidth="140" promptText="Default: none (x)"/>
+            </VBox>
+            <VBox>
+                <Label text="Mining intensity"/>
+                <TextField fx:id="sgminer_intesity_textField" minWidth="140" maxWidth="140" promptText="Default: 12"/>
+            </VBox>
+            <VBox>
+                <Label text="Extra sgminer flags"/>
+                <TextField fx:id="sgminer_flags_textField" minWidth="140" maxWidth="140"/>
+            </VBox>
+        </HBox>
+        <Button fx:id="go_button" text="Go" onAction="#load_miner"/>
+    </VBox>
+
+    <VBox fx:id="mining_vbox" alignment="CENTER" spacing="30" visible="false">
+        <Label styleClass="title" text="GarlicGUI" textAlignment="CENTER"/>
+        <ImageView fitHeight="227" fitWidth="227" preserveRatio="true">
+            <image>
+                <Image url="@../resources/images/garlicoin.png"/>
+            </image>
+        </ImageView>
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Hashrate (avg):"/>
+            <Label fx:id="hashrate_avg_Label" text="0Kh/s"/>
+        </HBox>
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Hashrate (5s):"/>
+            <Label fx:id="hashrate_5s_Label" text="0Kh/s"/>
+        </HBox>
+    </VBox>
+
     <stylesheets>
         <URL value="@../resources/stylesheets/main.css"/>
     </stylesheets>
-</VBox>
+
+</StackPane>

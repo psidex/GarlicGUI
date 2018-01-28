@@ -7,10 +7,6 @@
     -fx-text-fill: white;
 }
 
-#title_label {
+.title {
     -fx-font-size: 50;
-}
-
-#pool_url_label {
-    -fx-font-size: 20;
 }
