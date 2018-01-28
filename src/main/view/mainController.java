@@ -1,10 +1,10 @@
 package main.view;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.io.InputStreamReader;
 
-import main.view.miner_api_client;
-
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.util.Duration;
@@ -13,8 +13,14 @@ import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import javafx.scene.control.Button;
 
 public class mainController {
+
+    @FXML
+    public void exitApplication(ActionEvent event) {
+        Platform.exit();
+    }
 
     @FXML
     ImageView garlic_image;
@@ -22,11 +28,21 @@ public class mainController {
     TextField sgminer_path_textField, grlc_address_textField, pool_address_textField, pool_pword_textField;
     @FXML
     TextField sgminer_intesity_textField, sgminer_flags_textField;
+    @FXML
+    Button go_button;
 
     @FXML
-    private void load_miner(ActionEvent event) throws IOException {
+    private void load_miner(ActionEvent event){
+        go_button.setDisable(true);
+        sgminer_path_textField.setDisable(true);
+        grlc_address_textField.setDisable(true);
+        pool_address_textField.setDisable(true);
+        pool_pword_textField.setDisable(true);
+        sgminer_intesity_textField.setDisable(true);
+        sgminer_flags_textField.setDisable(true);
+
         // exe path, pool address, GRLC address, pool password, mining intensity, extra flags
-        String sgminer_cmd = "%s/sgminer.exe --algorithm scrypt-n --nfactor 11 -o %s -u %s -p %s -I %s --api-listen --api-allow W:0/0 %s";
+        String sgminer_cmd = "%s/sgminer --gpu-platform 0 --algorithm scrypt-n --nfactor 11 -o %s -u %s -p %s -I %s --api-listen --api-allow W:127.0.0.1 --thread-concurrency 8193 %s";
 
         // Get all options
         String sgminer_path = sgminer_path_textField.getText().trim();
@@ -56,28 +72,70 @@ public class mainController {
         rot.play();
 
         // Run sgminer
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec(to_execute);
-        } catch(IOException e) {
-            // TODO: Handle this better - https://stackoverflow.com/a/10431764
-            System.out.println("to_execute threw error:\n" + e);
-        }
+        Thread sgminer_cmd_thread = new Thread(){
+            public void run(){
+                System.out.println("sgminer_cmd_thread started");
 
-        // Wait for sgminer to boot up
-        try {
-            // TODO: Deal with this differently (maybe keep retrying connection instead of waiting)
-            TimeUnit.SECONDS.sleep(10);
-        } catch (InterruptedException e) {
-            System.out.println("sleep failed?");
-        }
+                ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", to_execute);
+                builder.redirectErrorStream(true);
 
-        // TODO: Why this no work???
-        miner_api_client miner_api = new miner_api_client();
-        miner_api.startConnection("127.0.0.1", 4028);
-        String resp = miner_api.sendMessage("{\"command\": \"summary\"}");
-        System.out.println(resp);
-        miner_api.stopConnection();
+                try {
+                    Process p = builder.start();
+
+                    Runtime.getRuntime().addShutdownHook(new Thread(){
+                        public void run() {
+                            // Kill process
+                            p.destroy();
+                            try {
+                                // Kill sgminer (not always killed by destroy()
+                                Runtime.getRuntime().exec("taskkill /f /t /im sgminer.exe");
+                            } catch (IOException e) {
+                                // Do nothing
+                            }
+                        }
+                    });
+
+                    while (true) {
+                        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                        String line;
+                        line = r.readLine();
+                        if (line == null) {
+                            break;
+                        }
+                        // System.out.println(line);
+                    }
+                } catch (IOException e) {
+                    System.out.println("sgminer proc failed (?)");
+                }
+            }
+        };
+        sgminer_cmd_thread.start();
+
+        // Run API thread
+        Thread sgminer_api_thread = new Thread(){
+            public void run(){
+                try {
+                    System.out.println("sgminer_api_thread started");
+                    miner_api_client miner_api = new miner_api_client();
+                    while ( 1==1 ) {
+                        try {
+                            miner_api.startConnection("127.0.0.1", 4028);
+                        } catch(IOException e) {
+                            System.out.println("sgminer_api_thread connection failed: " + e);
+                            continue;
+                        }
+                        System.out.println("Connected");
+                        break;
+                    }
+                    String resp = miner_api.sendMessage("{\"command\": \"summary\"}");
+                    System.out.println(resp);
+                    miner_api.stopConnection();
+                } catch (IOException e) {
+                    System.out.println("Caught IOException in sgminer_api_thread: " + e);
+                }
+            }
+        };
+        sgminer_api_thread.start();
     }
 
     public void initialize() {

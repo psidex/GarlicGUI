@@ -1,11 +1,14 @@
 package main;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.text.Font;
+import javafx.stage.WindowEvent;
 
 public class Main extends Application {
 
@@ -16,6 +19,16 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("view/mainUI.fxml"));
         primaryStage.setTitle("GarlicGUI");
         primaryStage.setScene(new Scene(root, 900, 700));
+
+        // Kill process when window closed
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent t) {
+                Platform.exit();
+                System.exit(0);
+            }
+        });
+
         primaryStage.show();
     }
 

@@ -43,7 +43,7 @@
             <TextField fx:id="sgminer_flags_textField" minWidth="140" maxWidth="140"/>
         </VBox>
     </HBox>
-    <Button text="Go" onAction="#load_miner"/>
+    <Button fx:id="go_button" text="Go" onAction="#load_miner"/>
     <stylesheets>
         <URL value="@../resources/stylesheets/main.css"/>
     </stylesheets>
