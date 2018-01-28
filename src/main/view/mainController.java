@@ -96,13 +96,14 @@ public class mainController {
                     });
 
                     while (true) {
+                        // Read lines from output and make sure everything is still working
+                        // This is needed for it to work
                         BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
                         String line;
                         line = r.readLine();
                         if (line == null) {
                             break;
                         }
-                        // System.out.println(line);
                     }
                 } catch (IOException e) {
                     System.out.println("sgminer proc failed (?)");
