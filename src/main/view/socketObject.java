@@ -1,5 +1,3 @@
-// Mainly from http://www.baeldung.com/a-guide-to-java-sockets
-
 package main.view;
 
 import java.io.BufferedReader;
@@ -8,7 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class miner_api_client {
+// Largely from http://www.baeldung.com/a-guide-to-java-sockets
+
+public class socketObject {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;

@@ -1,5 +1,3 @@
-// Thanks to http://code.makery.ch/blog/javafx-dialogs-official/
-
 package main.view;
 
 import java.io.PrintWriter;
@@ -12,7 +10,9 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-public class stacktrace_alert {
+// Largely from http://code.makery.ch/blog/javafx-dialogs-official/
+
+public class stacktraceAlert {
     public void create(String title, String header, String error_reason, Exception exception_obj) {
         // Allows this to run inside a thread that is not the main fx thread
         Platform.runLater(new Runnable(){
