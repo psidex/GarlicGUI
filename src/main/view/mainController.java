@@ -51,7 +51,7 @@ public class mainController {
         sgminer_flags_textField.setDisable(true);
 
         // exe path, pool address, GRLC address, pool password, mining intensity, extra flags
-        String sgminer_cmd = "%s/sgminer --gpu-platform 0 --algorithm scrypt-n --nfactor 11 -o %s -u %s -p %s -I %s --api-listen --api-allow W:127.0.0.1 --thread-concurrency 8193 %s";
+        String sgminer_cmd = "%s/sgminer --algorithm scrypt-n --nfactor 11 -o %s -u %s -p %s -I %s --api-listen --api-allow W:127.0.0.1 --thread-concurrency 8193 %s";
 
         // Get all options
         String sgminer_path = sgminer_path_textField.getText().trim();
