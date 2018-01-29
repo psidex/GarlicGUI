@@ -1,8 +1,8 @@
 # GarlicGUI
 
-My attempt at making a GUI for the Garlicoin SGMiner
+A simple GUI for the Garlicoin SGMiner (AMD only)
 
-Currently uses default values (and my GRLC address) if no options are supplied
+`settings/settings.ser` needs to exist in the same directory as the `.jar` / `.exe` for it to work
 
 ## Setup
 

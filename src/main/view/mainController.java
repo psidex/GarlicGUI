@@ -3,7 +3,9 @@ package main.view;
 import java.io.File;
 import java.io.IOException;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,6 +20,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
 import javafx.scene.image.ImageView;
 import javafx.animation.Animation;
@@ -63,6 +66,26 @@ public class mainController {
 
     @FXML
     private void loadMiner(ActionEvent event){
+        // Get all options
+        String sgminer_path = sgminer_path_textField.getText().trim();
+        String pool_address = pool_address_textField.getText().trim();
+        String grlc_address = grlc_address_textField.getText().trim();
+        String pool_pword = pool_pword_textField.getText().trim();
+        String sgminer_intesity = sgminer_intensity_textField.getText().trim();
+        String sgminer_flags = sgminer_flags_textField.getText().trim();
+
+        if (sgminer_path.isEmpty() || pool_address.isEmpty() || grlc_address.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information");
+            alert.setHeaderText("Required settings are empty");
+            alert.setContentText("All of: sgminer path, pool address, and GRLC address have to be filled out");
+            alert.showAndWait();
+            return;
+        }
+
+        saveSettings();
+
+        // Disable all input
         go_button.setDisable(true);
         sgminer_path_textField.setDisable(true);
         grlc_address_textField.setDisable(true);
@@ -75,23 +98,14 @@ public class mainController {
         // exe path, pool address, GRLC address, pool password, mining intensity, extra flags
         String sgminer_cmd = "%s\\sgminer --algorithm scrypt-n --nfactor 11 -o %s -u %s -p %s -I %s --api-listen --api-allow W:127.0.0.1 --thread-concurrency 8193 %s";
 
-        // Get all options
-        String sgminer_path = sgminer_path_textField.getText().trim();
-        String pool_address = pool_address_textField.getText().trim();
-        String grlc_address = grlc_address_textField.getText().trim();
-        String pool_pword = pool_pword_textField.getText().trim();
-        String sgminer_intesity = sgminer_intensity_textField.getText().trim();
-        String sgminer_flags = sgminer_flags_textField.getText().trim();
-
-        // Will be seen when frame changes to active mining (TODO: find a better way of doing default values (or don't use them at all)
-        mining_on_Label.setText(pool_address.isEmpty() ? "stratum+tcp://freshgarlicblocks.net:3032" : pool_address);
+        mining_on_Label.setText(pool_address);
 
         // Construct command
         String to_execute = String.format(
                 sgminer_cmd,
-                sgminer_path.isEmpty() ? "C:\\Users\\Simon\\Desktop\\sgminer" : sgminer_path,
-                pool_address.isEmpty() ? "stratum+tcp://freshgarlicblocks.net:3032" : pool_address,
-                grlc_address.isEmpty() ? "GJbKUzCbAezNZuQJkahqptvT2CpYywMSFj" : grlc_address,
+                sgminer_path,
+                pool_address,
+                grlc_address,
                 pool_pword.isEmpty() ? "x" : pool_pword,
                 sgminer_intesity.isEmpty() ? "12" : sgminer_intesity,
                 sgminer_flags
@@ -172,8 +186,27 @@ public class mainController {
         System.exit(0);
     }
 
+    private void saveSettings() {
+        // Save current settings to file using settings class
+        Map<String, String> settingsObj = new HashMap<>();
+        settingsObj.put("sgminer_path", sgminer_path_textField.getText().trim());
+        settingsObj.put("grlc_address", grlc_address_textField.getText().trim());
+        settingsObj.put("pool_address", pool_address_textField.getText().trim());
+        settingsObj.put("pool_pword", pool_pword_textField.getText().trim());
+        settingsObj.put("sgminer_intensity", sgminer_intensity_textField.getText().trim());
+        settingsObj.put("sgminer_flags", sgminer_flags_textField.getText().trim());
+        settings.setSettings(settingsObj);
+    }
+
     public void initialize() {
-        // Currently doing nothing
+        // Load all previous settings from file using settings class
+        Map<String, String> settingsObj = settings.getSettings();
+        sgminer_path_textField.setText(settingsObj.get("sgminer_path"));
+        grlc_address_textField.setText(settingsObj.get("grlc_address"));
+        pool_address_textField.setText(settingsObj.get("pool_address"));
+        pool_pword_textField.setText(settingsObj.get("pool_pword"));
+        sgminer_intensity_textField.setText(settingsObj.get("sgminer_intensity"));
+        sgminer_flags_textField.setText(settingsObj.get("sgminer_flags"));
     }
 
 }
