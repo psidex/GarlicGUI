@@ -20,7 +20,7 @@ public class Main extends Application {
         primaryStage.setTitle("GarlicGUI");
         primaryStage.setScene(new Scene(root, 900, 700));
 
-        // Kill process when window closed
+        // Kill process when window closed (if "Stop mining" button not used)
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent t) {

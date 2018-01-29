@@ -23,6 +23,7 @@
         <HBox alignment="CENTER" spacing="10">
             <Label text="Path to sgminer.exe"/>
             <TextField fx:id="sgminer_path_textField" minWidth="400" maxWidth="400" promptText="For example: C:\Users\username\Desktop\sgminer"/>
+            <Button fx:id="sgminer_path_button" text="Select path" onAction="#findSGMinerPath"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label text="Your GRLC address"/>
@@ -46,7 +47,7 @@
                 <TextField fx:id="sgminer_flags_textField" minWidth="140" maxWidth="140"/>
             </VBox>
         </HBox>
-        <Button fx:id="go_button" text="Start Mining" onAction="#load_miner"/>
+        <Button fx:id="go_button" text="Start Mining" onAction="#loadMiner"/>
     </VBox>
 
     <VBox fx:id="mining_vbox" alignment="CENTER" spacing="30" visible="false">
@@ -56,33 +57,30 @@
                 <Image url="@../resources/images/garlicoin.png"/>
             </image>
         </ImageView>
-        <HBox alignment="CENTER" spacing="10">
-            <Label text="Mining on:"/>
-            <Label fx:id="mining_on_Label" text="-"/>
+        <HBox alignment="CENTER" spacing="10" minWidth="900">
+            <Label fx:id="mining_on_Label" text="-" alignment="CENTER"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
-            <Label text="Mining for:"/>
-            <Label fx:id="mining_for_Label" text="-"/>
-        </HBox>
-        <HBox alignment="CENTER" spacing="10">
-            <Label text="Time elapsed"/>
-            <Label fx:id="time_elapsed_Label" text="0Kh/s"/>
+            <Label text="Time elapsed:" alignment="CENTER"/>
+            <Label fx:id="time_elapsed_Label" text="0Kh/s" alignment="CENTER"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label text="Hashrate (avg):"/>
             <Label fx:id="hashrate_avg_Label" text="0Kh/s"/>
-            <Label styleClass="vertical_spacer" text="|"/>
+        </HBox>
+        <HBox alignment="CENTER" spacing="10">
             <Label text="Hashrate (5s):"/>
             <Label fx:id="hashrate_5s_Label" text="0Kh/s"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
-            <Label text="Accepted shares"/>
+            <Label text="Accepted shares:"/>
             <Label fx:id="accepted_shares_Label" text="0"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
-            <Label text="Rejected shares"/>
+            <Label text="Rejected shares:"/>
             <Label fx:id="rejected_shares_Label" text="0"/>
         </HBox>
+        <Button fx:id="stop_button" text="Stop Mining" onAction="#stopMiner"/>
     </VBox>
 
     <stylesheets>

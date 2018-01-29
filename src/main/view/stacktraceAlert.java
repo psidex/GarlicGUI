@@ -48,6 +48,10 @@ public class stacktraceAlert {
                 alert.getDialogPane().setExpandableContent(expContent);
 
                 alert.showAndWait();
+
+                // Stop app when window closed
+                Platform.exit();
+                System.exit(0);
             }
         });
     }

@@ -3,6 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/GarlicGUI_jar</output-path>
     <root id="archive" name="GarlicGUI.jar">
       <element id="module-output" name="GarlicGUI" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/json-20171018.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

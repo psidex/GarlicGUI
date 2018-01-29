@@ -1,5 +1,6 @@
 package main.view;
 
+import java.io.File;
 import java.io.IOException;
 
 import java.util.Iterator;
@@ -10,12 +11,15 @@ import org.json.JSONObject;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.application.Platform;
-import javafx.scene.control.Label;
-import javafx.scene.layout.VBox;
-import javafx.scene.control.TextField;
-import javafx.scene.image.ImageView;
-import javafx.scene.control.Button;
 import javafx.util.Duration;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Window;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+import javafx.scene.image.ImageView;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
@@ -36,12 +40,29 @@ public class mainController {
     @FXML
     VBox mining_vbox;
     @FXML
-    Label hashrate_avg_Label, hashrate_5s_Label, mining_on_Label, mining_for_Label, time_elapsed_Label;
+    Label hashrate_avg_Label, hashrate_5s_Label, mining_on_Label, time_elapsed_Label;
     @FXML
     Label accepted_shares_Label, rejected_shares_Label;
+    @FXML
+    Button sgminer_path_button;
 
     @FXML
-    private void load_miner(ActionEvent event){
+    private void findSGMinerPath(ActionEvent event) {
+        // Grab stage from event
+        Node source = (Node) event.getSource();
+        Window thisStage = source.getScene().getWindow();
+        // Setup and show directory chooser
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("SWGMiner.exe location");
+        File defaultDirectory = new File("C:/");
+        chooser.setInitialDirectory(defaultDirectory);
+        File selectedDirectory = chooser.showDialog(thisStage);
+        // Set chosen dir to textField
+        sgminer_path_textField.setText(selectedDirectory.toString());
+    }
+
+    @FXML
+    private void loadMiner(ActionEvent event){
         go_button.setDisable(true);
         sgminer_path_textField.setDisable(true);
         grlc_address_textField.setDisable(true);
@@ -49,9 +70,10 @@ public class mainController {
         pool_pword_textField.setDisable(true);
         sgminer_intensity_textField.setDisable(true);
         sgminer_flags_textField.setDisable(true);
+        sgminer_path_button.setDisable(true);
 
         // exe path, pool address, GRLC address, pool password, mining intensity, extra flags
-        String sgminer_cmd = "%s/sgminer --algorithm scrypt-n --nfactor 11 -o %s -u %s -p %s -I %s --api-listen --api-allow W:127.0.0.1 --thread-concurrency 8193 %s";
+        String sgminer_cmd = "%s\\sgminer --algorithm scrypt-n --nfactor 11 -o %s -u %s -p %s -I %s --api-listen --api-allow W:127.0.0.1 --thread-concurrency 8193 %s";
 
         // Get all options
         String sgminer_path = sgminer_path_textField.getText().trim();
@@ -61,9 +83,8 @@ public class mainController {
         String sgminer_intesity = sgminer_intensity_textField.getText().trim();
         String sgminer_flags = sgminer_flags_textField.getText().trim();
 
-        // Will be seen when frame changes to active mining (TODO: find a better way of doing default values (or dont use them at all)
+        // Will be seen when frame changes to active mining (TODO: find a better way of doing default values (or don't use them at all)
         mining_on_Label.setText(pool_address.isEmpty() ? "stratum+tcp://freshgarlicblocks.net:3032" : pool_address);
-        mining_for_Label.setText(grlc_address.isEmpty() ? "GJbKUzCbAezNZuQJkahqptvT2CpYywMSFj" : grlc_address);
 
         // Construct command
         String to_execute = String.format(
@@ -143,6 +164,12 @@ public class mainController {
                 new stacktraceAlert().create("Exception occurred", "Error in sgminer_api_thread", "Exception in sgminer_api_thread", e);
             }
         }).start();
+    }
+
+    @FXML
+    private void stopMiner(ActionEvent event) {
+        Platform.exit();
+        System.exit(0);
     }
 
     public void initialize() {
