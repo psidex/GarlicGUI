@@ -13,10 +13,14 @@ import javafx.scene.layout.Priority;
 // Largely from http://code.makery.ch/blog/javafx-dialogs-official/
 
 public class stacktraceAlert {
+
     public void create(String title, String header, String error_reason, Exception exception_obj) {
+
         // Allows this to run inside a thread that is not the main fx thread
         Platform.runLater(new Runnable(){
+
             public void run(){
+
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle(title);
                 alert.setHeaderText(header);
@@ -52,7 +56,11 @@ public class stacktraceAlert {
                 // Stop app when window closed
                 Platform.exit();
                 System.exit(0);
+
             }
+
         });
+
     }
+
 }

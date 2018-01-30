@@ -10,13 +10,17 @@ public class settings {
 
     private static String settingsPath = "settings/settings.ser";
 
+    @SuppressWarnings("unchecked")  // mapObj will create stacktraceAlert if not correct type
     public static Map<String, String> getSettings() {
         Map<String, String> mapObj = null;
         try {
             FileInputStream fileIn = new FileInputStream(new File(settingsPath));
             ObjectInputStream in = new ObjectInputStream(fileIn);
-            // TODO: sort out this warning:
-            mapObj = (Map<String, String>) in.readObject();
+
+            Object inObj = in.readObject();
+            if (inObj instanceof Map) mapObj = (Map<String, String>) inObj;
+            else throw new IOException(settingsPath + ": incorrect file contents");
+
             in.close();
             fileIn.close();
             System.out.println("Serialized settings map loaded");

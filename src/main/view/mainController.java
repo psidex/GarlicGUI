@@ -20,7 +20,6 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
-import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
 import javafx.scene.image.ImageView;
 import javafx.animation.Animation;
@@ -75,11 +74,7 @@ public class mainController {
         String sgminer_flags = sgminer_flags_textField.getText().trim();
 
         if (sgminer_path.isEmpty() || pool_address.isEmpty() || grlc_address.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Information");
-            alert.setHeaderText("Required settings are empty");
-            alert.setContentText("All of: sgminer path, pool address, and GRLC address have to be filled out");
-            alert.showAndWait();
+            informationAlert.create("Information", "Required settings are empty", "All of: sgminer path, pool address, and GRLC address have to be filled out");
             return;
         }
 
@@ -126,6 +121,7 @@ public class mainController {
         // Thread for running API requests & updating GUI with results
         new Thread(() -> {
             System.out.println("sgminer_api_thread started");
+            Integer attemptCount = 0;
 
             try {
                 socketObject miner_api = new socketObject();
@@ -134,7 +130,14 @@ public class mainController {
                     try {
                         miner_api.startConnection("127.0.0.1", 4028);
                     } catch(IOException e) {
-                        // TODO: Add a limit to the amount of times it can attempt connection before considering it has failed
+                        if (attemptCount == 50) {
+                            informationAlert.create(
+                                    "Information",
+                                    "Attempted SGMiner connection 50 times",
+                                    "Are you sure SGMiner works on your machine normally?"
+                            );
+                        }
+                        attemptCount++;
                         continue;
                     }
                     System.out.println("Connected to API");
@@ -150,7 +153,6 @@ public class mainController {
                 while (true) {
                     miner_api.startConnection("127.0.0.1", 4028);
 
-                    // TODO: check for memory leak - defining this stuff again and again might break things?
                     String resp = miner_api.sendMessage("{\"command\": \"summary\"}");
                     JSONObject api_return = new JSONObject(resp);
                     JSONArray api_summary_array = (JSONArray) api_return.get("SUMMARY");
