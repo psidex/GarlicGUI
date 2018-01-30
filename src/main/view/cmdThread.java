@@ -28,7 +28,8 @@ public class cmdThread implements Runnable {
                 // Kill CMD process
                 p.destroy();
                 try {
-                    // Kill sgminer.exe (the CMD processes child)
+                    // ToDo: Kill richard & ccminer.exe - maybe kill by using exe name from path selection
+                    // Kill miner executable (the CMD processes child)
                     Runtime.getRuntime().exec("taskkill /f /t /im sgminer.exe");
                 } catch (IOException e) {
                     // Do nothing
@@ -41,7 +42,7 @@ public class cmdThread implements Runnable {
                 // This is needed for it to work
                 if (r.readLine() == null) break;
 
-                // Debugging
+                // Debugging - print output from child process
                 // // String line = r.readLine();
                 // // if (line == null) { break; }
                 // // System.out.println("DEBUG: " + line);
@@ -56,4 +57,3 @@ public class cmdThread implements Runnable {
     }
 
 }
-

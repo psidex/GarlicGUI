@@ -99,7 +99,7 @@ public class mainController {
 
         // exe path, pool address, GRLC address, mining intensity, pool password, extra flags
         String sgminer_cmd = "%s --algorithm scrypt-n --nfactor 11 -o %s -u %s -I %s -p %s --api-listen --api-allow W:127.0.0.1 %s";
-        String ccminer_cmd = "%s --algo=scrypt:10 -o %s -u %s -i %s -p %s -listen %s";
+        String ccminer_cmd = "%s --algo=scrypt:10 -o %s -u %s -i %s -p %s -listen -b 127.0.0.1:4028 %s";
 
         mining_on_Label.setText(poolAddress);
 
@@ -166,6 +166,8 @@ public class mainController {
                 while (true) {
                     miner_api.startConnection("127.0.0.1", 4028);
 
+                    // ToDo: ccminer uses different API(?) - Example request(?): GET /SUMMARY HTTP/1.1
+                    // ToDo: implement dev api (gpu usage, temp, etc.)
                     String resp = miner_api.sendMessage("{\"command\": \"summary\"}");
                     JSONObject api_return = new JSONObject(resp);
                     JSONArray api_summary_array = (JSONArray) api_return.get("SUMMARY");
