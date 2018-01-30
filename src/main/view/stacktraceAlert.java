@@ -14,52 +14,43 @@ import javafx.scene.layout.Priority;
 
 public class stacktraceAlert {
 
-    public void create(String title, String header, String error_reason, Exception exception_obj) {
+    public static void create(String title, String header, String error_reason, Exception exception_obj) {
 
-        // Allows this to run inside a thread that is not the main fx thread
-        Platform.runLater(new Runnable(){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(error_reason);
 
-            public void run(){
+        // Create expandable Exception.
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        exception_obj.printStackTrace(pw);
+        String exceptionText = sw.toString();
 
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle(title);
-                alert.setHeaderText(header);
-                alert.setContentText(error_reason);
+        Label label = new Label("The exception stacktrace was:");
 
-                // Create expandable Exception.
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                exception_obj.printStackTrace(pw);
-                String exceptionText = sw.toString();
+        TextArea textArea = new TextArea(exceptionText);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
 
-                Label label = new Label("The exception stacktrace was:");
+        textArea.setMaxWidth(Double.MAX_VALUE);
+        textArea.setMaxHeight(Double.MAX_VALUE);
+        GridPane.setVgrow(textArea, Priority.ALWAYS);
+        GridPane.setHgrow(textArea, Priority.ALWAYS);
 
-                TextArea textArea = new TextArea(exceptionText);
-                textArea.setEditable(false);
-                textArea.setWrapText(true);
+        GridPane expContent = new GridPane();
+        expContent.setMaxWidth(Double.MAX_VALUE);
+        expContent.add(label, 0, 0);
+        expContent.add(textArea, 0, 1);
 
-                textArea.setMaxWidth(Double.MAX_VALUE);
-                textArea.setMaxHeight(Double.MAX_VALUE);
-                GridPane.setVgrow(textArea, Priority.ALWAYS);
-                GridPane.setHgrow(textArea, Priority.ALWAYS);
+        // Set expandable Exception into the dialog pane.
+        alert.getDialogPane().setExpandableContent(expContent);
 
-                GridPane expContent = new GridPane();
-                expContent.setMaxWidth(Double.MAX_VALUE);
-                expContent.add(label, 0, 0);
-                expContent.add(textArea, 0, 1);
+        alert.showAndWait();
 
-                // Set expandable Exception into the dialog pane.
-                alert.getDialogPane().setExpandableContent(expContent);
-
-                alert.showAndWait();
-
-                // Stop app when window closed
-                Platform.exit();
-                System.exit(0);
-
-            }
-
-        });
+        // Stop app when window closed
+        Platform.exit();
+        System.exit(0);
 
     }
 

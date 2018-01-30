@@ -10,3 +10,11 @@
 .title {
     -fx-font-size: 50;
 }
+
+.text-input {
+    -fx-text-fill: black;
+}
+
+#nvidia_RadioButton, #amd_RadioButton {
+    -fx-text-fill: white;
+}

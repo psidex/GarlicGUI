@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,12 +16,8 @@ import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.application.Platform;
 import javafx.util.Duration;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.scene.image.ImageView;
 import javafx.animation.Animation;
@@ -33,9 +31,11 @@ public class mainController {
     @FXML
     ImageView garlic_image;
     @FXML
+    RadioButton nvidia_RadioButton, amd_RadioButton;
+    @FXML
     TextField grlc_address_textField, pool_address_textField, pool_pword_textField;
     @FXML
-    TextField sgminer_path_textField, sgminer_intensity_textField, sgminer_flags_textField;
+    TextField miner_path_textField, miner_intensity_textField, miner_flags_textField;
     @FXML
     Button go_button;
 
@@ -46,64 +46,77 @@ public class mainController {
     @FXML
     Label accepted_shares_Label, rejected_shares_Label;
     @FXML
-    Button sgminer_path_button;
+    Button miner_path_button;
 
     @FXML
-    private void findSGMinerPath(ActionEvent event) {
+    private void findMinerPath(ActionEvent event) {
         // Grab stage from event
         Node source = (Node) event.getSource();
         Window thisStage = source.getScene().getWindow();
         // Setup and show directory chooser
-        DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setTitle("SWGMiner.exe location");
-        File defaultDirectory = new File("C:/");
-        chooser.setInitialDirectory(defaultDirectory);
-        File selectedDirectory = chooser.showDialog(thisStage);
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("miner executable");
+        fileChooser.setInitialDirectory(new File("C:/"));
+        File selectedFile = fileChooser.showOpenDialog(thisStage);
         // Set chosen dir to textField
-        sgminer_path_textField.setText(selectedDirectory.toString());
+        miner_path_textField.setText(selectedFile.toString());
     }
 
     @FXML
     private void loadMiner(ActionEvent event){
         // Get all options
-        String sgminer_path = sgminer_path_textField.getText().trim();
-        String pool_address = pool_address_textField.getText().trim();
-        String grlc_address = grlc_address_textField.getText().trim();
-        String pool_pword = pool_pword_textField.getText().trim();
-        String sgminer_intesity = sgminer_intensity_textField.getText().trim();
-        String sgminer_flags = sgminer_flags_textField.getText().trim();
+        String minerPath = miner_path_textField.getText().trim();
+        String poolAddress = pool_address_textField.getText().trim();
+        String poolPassword = pool_pword_textField.getText().trim();
+        String GRLCAddress = grlc_address_textField.getText().trim();
+        String minerIntensity = miner_intensity_textField.getText().trim();
+        String minerFlags = miner_flags_textField.getText().trim();
 
-        if (sgminer_path.isEmpty() || pool_address.isEmpty() || grlc_address.isEmpty()) {
-            informationAlert.create("Information", "Required settings are empty", "All of: sgminer path, pool address, and GRLC address have to be filled out");
+        if (minerPath.isEmpty() || poolAddress.isEmpty() || GRLCAddress.isEmpty() || (!nvidia_RadioButton.isSelected() == !amd_RadioButton.isSelected())) {
+            informationAlert.create("Information", "Required settings are empty", "All of: gpu selection, miner path, pool address, and GRLC address have to be filled out");
             return;
         }
 
         saveSettings();
 
+        // ToDo: REMOVE TEMP DEBUG CODE BELOW
+        String gpu = "";
+        if (nvidia_RadioButton.isSelected()) gpu = "nvidia";
+        else if (amd_RadioButton.isSelected()) gpu = "amd";
+        System.out.println("Using GPU type: " + gpu);
+
         // Disable all input
+        nvidia_RadioButton.setDisable(true);
+        amd_RadioButton.setDisable(true);
         go_button.setDisable(true);
-        sgminer_path_textField.setDisable(true);
+        miner_path_textField.setDisable(true);
         grlc_address_textField.setDisable(true);
         pool_address_textField.setDisable(true);
         pool_pword_textField.setDisable(true);
-        sgminer_intensity_textField.setDisable(true);
-        sgminer_flags_textField.setDisable(true);
-        sgminer_path_button.setDisable(true);
+        miner_intensity_textField.setDisable(true);
+        miner_flags_textField.setDisable(true);
+        miner_path_button.setDisable(true);
 
-        // exe path, pool address, GRLC address, pool password, mining intensity, extra flags
-        String sgminer_cmd = "%s\\sgminer --algorithm scrypt-n --nfactor 11 -o %s -u %s -p %s -I %s --api-listen --api-allow W:127.0.0.1 --thread-concurrency 8193 %s";
+        // exe path, pool address, GRLC address, mining intensity, pool password, extra flags
+        String sgminer_cmd = "%s --algorithm scrypt-n --nfactor 11 -o %s -u %s -I %s -p %s --api-listen --api-allow W:127.0.0.1 %s";
+        String ccminer_cmd = "%s --algo=scrypt:10 -o %s -u %s -i %s -p %s -listen %s";
 
-        mining_on_Label.setText(pool_address);
+        mining_on_Label.setText(poolAddress);
+
+        String cmdToUse = "";
+        if (nvidia_RadioButton.isSelected()) cmdToUse = ccminer_cmd;
+        else if (amd_RadioButton.isSelected()) cmdToUse = sgminer_cmd;
+        // Check for blank radio button has already happened
 
         // Construct command
         String to_execute = String.format(
-                sgminer_cmd,
-                sgminer_path,
-                pool_address,
-                grlc_address,
-                pool_pword.isEmpty() ? "x" : pool_pword,
-                sgminer_intesity.isEmpty() ? "12" : sgminer_intesity,
-                sgminer_flags
+                cmdToUse,
+                minerPath,
+                poolAddress,
+                GRLCAddress,
+                minerIntensity.isEmpty() ? "12" : minerIntensity,
+                poolPassword.isEmpty() ? "x" : poolPassword,
+                minerFlags
         );
         System.out.println("Executing: " + to_execute);
 
@@ -114,13 +127,13 @@ public class mainController {
         garlic_image_rot.setInterpolator(Interpolator.LINEAR);
         garlic_image_rot.play();
 
-        // Thread for running sgminer.exe
-        Runnable sgminerCMDThread = new cmdThread(to_execute);
-        new Thread(sgminerCMDThread).start();
+        // Thread for running miner executable
+        Runnable minerCMDThread = new cmdThread(to_execute);
+        new Thread(minerCMDThread).start();
 
         // Thread for running API requests & updating GUI with results
         new Thread(() -> {
-            System.out.println("sgminer_api_thread started");
+            System.out.println("miner_api_thread started");
             Integer attemptCount = 0;
 
             try {
@@ -133,8 +146,8 @@ public class mainController {
                         if (attemptCount == 50) {
                             informationAlert.create(
                                     "Information",
-                                    "Attempted SGMiner connection 50 times",
-                                    "Are you sure SGMiner works on your machine normally?"
+                                    "Attempted miner connection 50 times",
+                                    "Are you sure the miner works on your machine normally?"
                             );
                         }
                         attemptCount++;
@@ -177,7 +190,7 @@ public class mainController {
                 }
 
             } catch (IOException e) {
-                new stacktraceAlert().create("Exception occurred", "Error in sgminer_api_thread", "Exception in sgminer_api_thread", e);
+                stacktraceAlert.create("Exception occurred", "Error in miner_api_thread", "Exception in miner_api_thread", e);
             }
         }).start();
     }
@@ -191,24 +204,37 @@ public class mainController {
     private void saveSettings() {
         // Save current settings to file using settings class
         Map<String, String> settingsObj = new HashMap<>();
-        settingsObj.put("sgminer_path", sgminer_path_textField.getText().trim());
+
+        String gpu = "";
+        if (nvidia_RadioButton.isSelected()) gpu = "nvidia";
+        else if (amd_RadioButton.isSelected()) gpu = "amd";
+
+        settingsObj.put("gpu_type", gpu);
+        settingsObj.put("miner_path", miner_path_textField.getText().trim());
         settingsObj.put("grlc_address", grlc_address_textField.getText().trim());
         settingsObj.put("pool_address", pool_address_textField.getText().trim());
-        settingsObj.put("pool_pword", pool_pword_textField.getText().trim());
-        settingsObj.put("sgminer_intensity", sgminer_intensity_textField.getText().trim());
-        settingsObj.put("sgminer_flags", sgminer_flags_textField.getText().trim());
+        settingsObj.put("miner_intensity", miner_intensity_textField.getText().trim());
+        settingsObj.put("miner_flags", miner_flags_textField.getText().trim());
         settings.setSettings(settingsObj);
     }
 
     public void initialize() {
+        ToggleGroup GPUToggleGroup = new ToggleGroup();
+        nvidia_RadioButton.setToggleGroup(GPUToggleGroup);
+        amd_RadioButton.setToggleGroup(GPUToggleGroup);
+
         // Load all previous settings from file using settings class
         Map<String, String> settingsObj = settings.getSettings();
-        sgminer_path_textField.setText(settingsObj.get("sgminer_path"));
+
+        String gpu = settingsObj.get("gpu_type");
+        if (gpu.equals("nvidia")) GPUToggleGroup.selectToggle(nvidia_RadioButton);
+        else if (gpu.equals("amd")) GPUToggleGroup.selectToggle(amd_RadioButton);
+
+        miner_path_textField.setText(settingsObj.get("miner_path"));
         grlc_address_textField.setText(settingsObj.get("grlc_address"));
         pool_address_textField.setText(settingsObj.get("pool_address"));
-        pool_pword_textField.setText(settingsObj.get("pool_pword"));
-        sgminer_intensity_textField.setText(settingsObj.get("sgminer_intensity"));
-        sgminer_flags_textField.setText(settingsObj.get("sgminer_flags"));
+        miner_intensity_textField.setText(settingsObj.get("miner_intensity"));
+        miner_flags_textField.setText(settingsObj.get("miner_flags"));
     }
 
 }

@@ -40,12 +40,17 @@ public class cmdThread implements Runnable {
                 // Read lines from output and make sure everything is still working
                 // This is needed for it to work
                 if (r.readLine() == null) break;
+
+                // Debugging
+                // // String line = r.readLine();
+                // // if (line == null) { break; }
+                // // System.out.println("DEBUG: " + line);
             }
 
         }
 
         catch (IOException e) {
-            new stacktraceAlert().create("IOException", "Error in sgminer.exe thread", "IOException in sgminer.exe thread", e);
+            stacktraceAlert.create("IOException", "Error in sgminer.exe thread", "IOException in sgminer.exe thread", e);
         }
 
     }
