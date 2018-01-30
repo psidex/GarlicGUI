@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import org.json.JSONObject;
 
