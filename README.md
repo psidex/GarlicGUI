@@ -15,3 +15,7 @@ A simple GUI for the Garlicoin SGMiner (AMD only)
 ## Sources
 
 Fira Sans font from [here](https://www.fontsquirrel.com/fonts/fira-sans)
+
+---
+
+`GJbKUzCbAezNZuQJkahqptvT2CpYywMSFj`
