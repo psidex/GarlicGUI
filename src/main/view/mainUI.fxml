@@ -69,13 +69,17 @@
             <Label text="Time elapsed:" alignment="CENTER"/>
             <Label fx:id="time_elapsed_Label" text="0Kh/s" alignment="CENTER"/>
         </HBox>
-        <HBox alignment="CENTER" spacing="10">
+        <HBox fx:id="amd_hashrate_avg_HBox" alignment="CENTER" spacing="10">
             <Label text="Hashrate (avg):"/>
-            <Label fx:id="hashrate_avg_Label" text="0Kh/s"/>
+            <Label fx:id="amd_hashrate_avg_Label" text="0Kh/s"/>
         </HBox>
-        <HBox alignment="CENTER" spacing="10">
+        <HBox fx:id="amd_hashrate_5s_HBox" alignment="CENTER" spacing="10">
             <Label text="Hashrate (5s):"/>
-            <Label fx:id="hashrate_5s_Label" text="0Kh/s"/>
+            <Label fx:id="amd_hashrate_5s_Label" text="0Kh/s"/>
+        </HBox>
+        <HBox fx:id="nvidia_hashrate_HBox" alignment="CENTER" spacing="10">
+            <Label text="Hashrate:"/>
+            <Label fx:id="nvidia_hashrate_Label" text="0Kh/s"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label text="Accepted shares:"/>
@@ -85,7 +89,7 @@
             <Label text="Rejected shares:"/>
             <Label fx:id="rejected_shares_Label" text="0"/>
         </HBox>
-        <Button fx:id="stop_button" text="Stop Mining" onAction="#stopMiner"/>
+        <Button text="Stop Mining" onAction="#stopMiner"/>
     </VBox>
 
     <stylesheets>

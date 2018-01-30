@@ -6,18 +6,21 @@ import java.io.InputStreamReader;
 
 public class cmdThread implements Runnable {
 
-    public static String cmd_string;
+    private static String cmdString;
+    private static String exeName;
 
-    public cmdThread(String to_execute) {
+    public cmdThread(String to_execute, String minerExecutable) {
         // Allow use in run
-        cmd_string = to_execute;
+        cmdString = to_execute;
+        exeName = minerExecutable;
+        System.out.println("exeName: " + exeName);
     }
 
     public void run(){
 
         System.out.println("sgminer_cmd_thread started");
 
-        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", cmd_string);
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", cmdString);
         builder.redirectErrorStream(true);
 
         try {
@@ -28,9 +31,8 @@ public class cmdThread implements Runnable {
                 // Kill CMD process
                 p.destroy();
                 try {
-                    // ToDo: Kill richard & ccminer.exe - maybe kill by using exe name from path selection
                     // Kill miner executable (the CMD processes child)
-                    Runtime.getRuntime().exec("taskkill /f /t /im sgminer.exe");
+                    Runtime.getRuntime().exec("taskkill /f /t /im " + exeName);
                 } catch (IOException e) {
                     // Do nothing
                 }

@@ -8,6 +8,8 @@ Currently un-tested on Nvidia hardware
 
 The default mining intensity is 12
 
+The IP:Port used for the API is `127.0.0.1:4028`
+
 ## Instructions
 
  - Test that the miner works by itself before using this GUI

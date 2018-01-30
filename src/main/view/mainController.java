@@ -4,12 +4,12 @@ import java.io.File;
 import java.io.IOException;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javafx.fxml.FXML;
@@ -42,9 +42,11 @@ public class mainController {
     @FXML
     VBox mining_vbox;
     @FXML
-    Label hashrate_avg_Label, hashrate_5s_Label, mining_on_Label, time_elapsed_Label;
+    Label amd_hashrate_avg_Label, amd_hashrate_5s_Label, nvidia_hashrate_Label, mining_on_Label, time_elapsed_Label;
     @FXML
     Label accepted_shares_Label, rejected_shares_Label;
+    @FXML
+    HBox amd_hashrate_avg_HBox, amd_hashrate_5s_HBox, nvidia_hashrate_HBox;
     @FXML
     Button miner_path_button;
 
@@ -79,12 +81,6 @@ public class mainController {
 
         saveSettings();
 
-        // ToDo: REMOVE TEMP DEBUG CODE BELOW
-        String gpu = "";
-        if (nvidia_RadioButton.isSelected()) gpu = "nvidia";
-        else if (amd_RadioButton.isSelected()) gpu = "amd";
-        System.out.println("Using GPU type: " + gpu);
-
         // Disable all input
         nvidia_RadioButton.setDisable(true);
         amd_RadioButton.setDisable(true);
@@ -104,8 +100,15 @@ public class mainController {
         mining_on_Label.setText(poolAddress);
 
         String cmdToUse = "";
-        if (nvidia_RadioButton.isSelected()) cmdToUse = ccminer_cmd;
-        else if (amd_RadioButton.isSelected()) cmdToUse = sgminer_cmd;
+        if (nvidia_RadioButton.isSelected()) {
+            cmdToUse = ccminer_cmd;
+            mining_vbox.getChildren().remove(amd_hashrate_avg_HBox);
+            mining_vbox.getChildren().remove(amd_hashrate_5s_HBox);
+        }
+        else if (amd_RadioButton.isSelected()){
+            cmdToUse = sgminer_cmd;
+            mining_vbox.getChildren().remove(nvidia_hashrate_HBox);
+        }
         // Check for blank radio button has already happened
 
         // Construct command
@@ -127,8 +130,10 @@ public class mainController {
         garlic_image_rot.setInterpolator(Interpolator.LINEAR);
         garlic_image_rot.play();
 
+        // Get miner name from path
+        String minerExecutable = new File(miner_path_textField.getText()).getName();
         // Thread for running miner executable
-        Runnable minerCMDThread = new cmdThread(to_execute);
+        Runnable minerCMDThread = new cmdThread(to_execute, minerExecutable);
         new Thread(minerCMDThread).start();
 
         // Thread for running API requests & updating GUI with results
@@ -137,11 +142,11 @@ public class mainController {
             Integer attemptCount = 0;
 
             try {
-                socketObject miner_api = new socketObject();
+                socketObject minerSocket = new socketObject();
 
                 while (true) {
                     try {
-                        miner_api.startConnection("127.0.0.1", 4028);
+                        minerSocket.startConnection("127.0.0.1", 4028);
                     } catch(IOException e) {
                         if (attemptCount == 50) {
                             informationAlert.create(
@@ -154,7 +159,7 @@ public class mainController {
                         continue;
                     }
                     System.out.println("Connected to API");
-                    miner_api.stopConnection();
+                    minerSocket.stopConnection();
                     break;
                 }
 
@@ -163,32 +168,11 @@ public class mainController {
 
                 // Get summary results from the API every second and update labels
                 // For some reason the API only responds to 1 request, so a new connection has to be made for each api request
+                // ToDo: Maybe implement dev api (gpu usage, temp, etc.)
                 while (true) {
-                    miner_api.startConnection("127.0.0.1", 4028);
-
-                    // ToDo: ccminer uses different API(?) - Example request(?): GET /SUMMARY HTTP/1.1
-                    // ToDo: implement dev api (gpu usage, temp, etc.)
-                    String resp = miner_api.sendMessage("{\"command\": \"summary\"}");
-                    JSONObject api_return = new JSONObject(resp);
-                    JSONArray api_summary_array = (JSONArray) api_return.get("SUMMARY");
-                    Iterator api_summary_itr = api_summary_array.iterator();
-
-                    // Should only over iterate once
-                    while (api_summary_itr.hasNext()) {
-                        Object slide = api_summary_itr.next();
-                        JSONObject api_summary_jsonObject = (JSONObject) slide;
-
-                        // runLater() allows updating GUI from inside another Thread
-                        Platform.runLater(() -> {
-                            time_elapsed_Label.setText(api_summary_jsonObject.get("Elapsed").toString() + "s");
-                            hashrate_avg_Label.setText(api_summary_jsonObject.get("KHS av").toString() + " Kh/s");
-                            hashrate_5s_Label.setText(api_summary_jsonObject.get("KHS 5s").toString() + " Kh/s");
-                            accepted_shares_Label.setText(api_summary_jsonObject.get("Accepted").toString());
-                            rejected_shares_Label.setText(api_summary_jsonObject.get("Rejected").toString());
-                        });
-                    }
-
-                    miner_api.stopConnection();
+                    // ToDo: Find a better way of doing this
+                    if (amd_RadioButton.isSelected()) amdUpdateInfo(minerSocket);
+                    else nvidiaUpdateInfo(minerSocket);
                 }
 
             } catch (IOException e) {
@@ -201,6 +185,29 @@ public class mainController {
     private void stopMiner(ActionEvent event) {
         Platform.exit();
         System.exit(0);
+    }
+
+    private void amdUpdateInfo(socketObject miner_api) throws IOException {
+        JSONObject api_summary_jsonObject = SGMinerAPI.pingInfo(miner_api);
+        // runLater() allows updating GUI from inside another Thread
+        Platform.runLater(() -> {
+            time_elapsed_Label.setText(api_summary_jsonObject.get("Elapsed").toString() + "s");
+            amd_hashrate_avg_Label.setText(api_summary_jsonObject.get("KHS av").toString() + " Kh/s");
+            amd_hashrate_5s_Label.setText(api_summary_jsonObject.get("KHS 5s").toString() + " Kh/s");
+            accepted_shares_Label.setText(api_summary_jsonObject.get("Accepted").toString());
+            rejected_shares_Label.setText(api_summary_jsonObject.get("Rejected").toString());
+        });
+    }
+
+    private void nvidiaUpdateInfo(socketObject miner_api) throws IOException {
+        Map<String, String> api_summary_map = CCMinerAPI.pingInfo(miner_api);
+        // runLater() allows updating GUI from inside another Thread
+        Platform.runLater(() -> {
+            time_elapsed_Label.setText(api_summary_map.get("Uptime") + "s");
+            nvidia_hashrate_Label.setText(api_summary_map.get("KHS") + " Kh/s");
+            accepted_shares_Label.setText(api_summary_map.get("Accepted"));
+            rejected_shares_Label.setText(api_summary_map.get("Rejected"));
+        });
     }
 
     private void saveSettings() {
