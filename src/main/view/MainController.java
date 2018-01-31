@@ -22,8 +22,6 @@ import javafx.event.ActionEvent;
 import javafx.application.Platform;
 import javafx.util.Duration;
 
-// ToDo: Allow user to disable / enable logging (both MainController & CMDThread logging separately)
-
 public class MainController {
 
     private PrintWriter logWriter;
@@ -174,7 +172,6 @@ public class MainController {
                 miningVBox.setVisible(true);
 
                 // Get summary results from the API every second and update labels
-                // For some reason the API only responds to 1 request, so a new connection has to be made for each api request
                 // ToDo: Implement dev api (gpu usage, temp, etc.)
                 while (true) {
                     if (AMDRadioButton.isSelected()) amdUpdateInfo(minerSocket);
@@ -234,6 +231,8 @@ public class MainController {
     }
 
     public void initialize() {
+        // ToDo: Allow user to disable / enable logging (both MainController & CMDThread logging separately)
+        // ToDo: Prepend time [HH:MM:SS] to start of all lines in log (maybe move logWriter.println to new method)
         // Setup logging to file
         try {
             logWriter = new PrintWriter("GarlicGUI.log", "UTF-8");
