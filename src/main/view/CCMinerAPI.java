@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class CCMinerAPI {
 
-    // Takes an already established socket and gets info from SGMiner api
+    // Takes an already established socket and gets info from CCMiner api
     public static Map<String, String> pingInfo(socketObject socket) throws IOException {
         socket.startConnection("127.0.0.1", 4028);
 
