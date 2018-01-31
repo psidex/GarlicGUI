@@ -12,7 +12,7 @@ import javafx.scene.layout.Priority;
 
 // Largely from http://code.makery.ch/blog/javafx-dialogs-official/
 
-public class stacktraceAlert {
+public class StacktraceAlert {
 
     public static void create(String title, String header, String error_reason, Exception exception_obj) {
 

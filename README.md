@@ -14,7 +14,7 @@ The IP:Port used for the API is `127.0.0.1:4028`
 
  - Test that the miner works by itself before using this GUI
 
- - Make sure `settings/settings.ser` exists in the same directory as `GarlicGUI.jar`
+ - Make sure `Settings/Settings.ser` exists in the same directory as `GarlicGUI.jar`
 
  - You can use the "Extra miner flags" box to put extra flags such as pool username & password, max-temp for Nvidia GPUs, etc.
 

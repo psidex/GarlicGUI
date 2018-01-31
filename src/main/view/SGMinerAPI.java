@@ -9,7 +9,7 @@ import java.util.Iterator;
 public class SGMinerAPI {
 
     // Takes an already established socket and gets info from SGMiner api
-    public static JSONObject pingInfo(socketObject socket) throws IOException {
+    public static JSONObject pingInfo(SocketObject socket) throws IOException {
         socket.startConnection("127.0.0.1", 4028);
 
         String resp = socket.sendMessage("{\"command\": \"summary\"}");

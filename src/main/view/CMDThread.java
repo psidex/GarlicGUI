@@ -5,18 +5,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-public class cmdThread implements Runnable {
+public class CMDThread implements Runnable {
 
     private String cmdString;
     private String exeName;
     private PrintWriter logWriter;
 
-    public cmdThread(String to_execute, String minerExecutable, String logFileName) {
+    public CMDThread(String to_execute, String minerExecutable, String logFileName) {
 
         try {
             logWriter = new PrintWriter(logFileName, "UTF-8");
         } catch (IOException e) {
-            stacktraceAlert.create("Log file error", "cmdThread.logWriter threw IOException", "Cannot create new PrintWriter", e);
+            StacktraceAlert.create("Log file error", "CMDThread.logWriter threw IOException", "Cannot create new PrintWriter", e);
         }
 
         cmdString = to_execute;
@@ -62,7 +62,7 @@ public class cmdThread implements Runnable {
         }
 
         catch (IOException e) {
-            stacktraceAlert.create("IOException", "Error in sgminer.exe thread", "IOException in sgminer.exe thread", e);
+            StacktraceAlert.create("IOException", "Error in sgminer.exe thread", "IOException in sgminer.exe thread", e);
         }
 
     }

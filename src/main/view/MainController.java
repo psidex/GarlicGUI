@@ -21,7 +21,7 @@ import javafx.event.ActionEvent;
 import javafx.application.Platform;
 import javafx.util.Duration;
 
-public class mainController {
+public class MainController {
 
     private ParallelTransition setup_vboxPT, mining_vboxPT;
     private RotateTransition garlic_imageRT;
@@ -77,7 +77,7 @@ public class mainController {
         String minerFlags = minerFlagsTextField.getText().trim();
 
         if (minerPath.isEmpty() || poolAddress.isEmpty() || GRLCAddress.isEmpty() || (!NvidiaRadioButton.isSelected() == !AMDRadioButton.isSelected())) {
-            informationAlert.create("Information", "Required settings are empty", "All of: gpu selection, miner path, pool address, and GRLC address have to be filled out");
+            InformationAlert.create("Information", "Required Settings are empty", "All of: gpu selection, miner path, pool address, and GRLC address have to be filled out");
             return;
         }
 
@@ -131,7 +131,7 @@ public class mainController {
         // Get miner name from path
         String minerExecutable = new File(minerPathTextField.getText()).getName();
         // Thread for running miner executable
-        Runnable minerCMDThread = new cmdThread(to_execute, minerExecutable, "minerCMDThread.log");
+        Runnable minerCMDThread = new CMDThread(to_execute, minerExecutable, "minerCMDThread.log");
         new Thread(minerCMDThread).start();
 
         // Thread for running API requests & updating GUI with results
@@ -141,14 +141,14 @@ public class mainController {
             // Keep attempting API connection until successful
             Integer attemptCount = 0;
             try {
-                socketObject minerSocket = new socketObject();
+                SocketObject minerSocket = new SocketObject();
 
                 while (true) {
                     try {
                         minerSocket.startConnection("127.0.0.1", 4028);
                     } catch(IOException e) {
                         if (attemptCount == 50) {
-                            informationAlert.create(
+                            InformationAlert.create(
                                     "Information",
                                     "Attempted miner connection 50 times",
                                     "Are you sure the miner works on your machine normally?"
@@ -176,7 +176,7 @@ public class mainController {
                 }
 
             } catch (IOException e) {
-                stacktraceAlert.create("Exception occurred", "Error in miner_api_thread", "Exception in miner_api_thread", e);
+                StacktraceAlert.create("Exception occurred", "Error in miner_api_thread", "Exception in miner_api_thread", e);
             }
         }).start();
     }
@@ -187,7 +187,7 @@ public class mainController {
         System.exit(0);
     }
 
-    private void amdUpdateInfo(socketObject miner_api) throws IOException {
+    private void amdUpdateInfo(SocketObject miner_api) throws IOException {
         JSONObject api_summary_jsonObject = SGMinerAPI.pingInfo(miner_api);
         // runLater() allows updating GUI from inside another Thread
         Platform.runLater(() -> {
@@ -199,7 +199,7 @@ public class mainController {
         });
     }
 
-    private void nvidiaUpdateInfo(socketObject miner_api) throws IOException {
+    private void nvidiaUpdateInfo(SocketObject miner_api) throws IOException {
         Map<String, String> api_summary_map = CCMinerAPI.pingInfo(miner_api);
         Platform.runLater(() -> {
             timeElapsedLabel.setText(api_summary_map.get("Uptime") + "s");
@@ -210,7 +210,7 @@ public class mainController {
     }
 
     private void saveSettings() {
-        // Save current settings to file using settings class
+        // Save current Settings to file using Settings class
         Map<String, String> settingsObj = new HashMap<>();
 
         String gpu;
@@ -223,7 +223,7 @@ public class mainController {
         settingsObj.put("poolAddress", poolAddressTextField.getText().trim());
         settingsObj.put("minerIntensity", minerIntensityTextField.getText().trim());
         settingsObj.put("minerFlags", minerFlagsTextField.getText().trim());
-        settings.setSettings(settingsObj);
+        Settings.setSettings(settingsObj);
     }
 
     public void initialize() {
@@ -264,8 +264,8 @@ public class mainController {
         NvidiaRadioButton.setToggleGroup(GPUToggleGroup);
         AMDRadioButton.setToggleGroup(GPUToggleGroup);
 
-        // Load all previous settings from file using settings class
-        Map<String, String> settingsObj = settings.getSettings();
+        // Load all previous Settings from file using Settings class
+        Map<String, String> settingsObj = Settings.getSettings();
 
         String gpu = settingsObj.get("GPUType");
         if (gpu.equals("nvidia")) GPUToggleGroup.selectToggle(NvidiaRadioButton);

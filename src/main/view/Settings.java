@@ -6,11 +6,11 @@ import java.util.Map;
 
 // http://www.tutorialspoint.com/java/java_serialization.htm was useful
 
-public class settings {
+public class Settings {
 
-    private static String settingsPath = "settings/settings.ser";
+    private static String settingsPath = "Settings/Settings.ser";
 
-    @SuppressWarnings("unchecked")  // mapObj will create stacktraceAlert if not correct type
+    @SuppressWarnings("unchecked")  // mapObj will create StacktraceAlert if not correct type
     public static Map<String, String> getSettings() {
         Map<String, String> mapObj = null;
         try {
@@ -23,9 +23,9 @@ public class settings {
 
             in.close();
             fileIn.close();
-            System.out.println("Serialized settings map loaded");
+            System.out.println("Serialized Settings map loaded");
         } catch (IOException | ClassNotFoundException e) {
-            stacktraceAlert.create("Exception occurred", "Does settings/settings.ser exist?", "Exception in settings.getSettings", e);
+            StacktraceAlert.create("Exception occurred", "Does Settings/Settings.ser exist?", "Exception in Settings.getSettings", e);
         }
         return mapObj;
     }
@@ -37,9 +37,9 @@ public class settings {
             out.writeObject(mapObj);
             out.close();
             fileOut.close();
-            System.out.println("Serialized settings map saved");
+            System.out.println("Serialized Settings map saved");
         } catch (IOException e) {
-            stacktraceAlert.create("Exception occurred", "Does settings/settings.ser exist?", "Exception in settings.setSettings", e);
+            StacktraceAlert.create("Exception occurred", "Does Settings/Settings.ser exist?", "Exception in Settings.setSettings", e);
         }
     }
 }

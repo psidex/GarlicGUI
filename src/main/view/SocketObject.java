@@ -8,7 +8,7 @@ import java.net.Socket;
 
 // Largely from http://www.baeldung.com/a-guide-to-java-sockets
 
-public class socketObject {
+public class SocketObject {
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;

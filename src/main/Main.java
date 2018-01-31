@@ -16,7 +16,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         Font.loadFont(getClass().getResource("resources/fonts/FiraSans-Regular.otf").toExternalForm(), 10);
 
-        Parent root = FXMLLoader.load(getClass().getResource("view/mainUI.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("resources/fxml/mainUI.fxml"));
         primaryStage.setTitle("GarlicGUI");
         primaryStage.setScene(new Scene(root, 900, 700));
 
