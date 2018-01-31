@@ -265,6 +265,7 @@ public class mainController {
         AMDRadioButton.setToggleGroup(GPUToggleGroup);
 
         // Load all previous settings from file using settings class
+        // ToDo: Catch and show error for IOException in getSettings() 
         Map<String, String> settingsObj = settings.getSettings();
 
         String gpu = settingsObj.get("GPUType");
