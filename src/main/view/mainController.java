@@ -23,8 +23,8 @@ import javafx.util.Duration;
 
 public class mainController {
 
-    FadeTransition setup_vboxFT, mining_vboxFT;
-    RotateTransition garlic_imageRT;
+    private ParallelTransition setup_vboxPT, mining_vboxPT;
+    private RotateTransition garlic_imageRT;
 
     @FXML
     VBox setup_vbox;
@@ -66,6 +66,7 @@ public class mainController {
 
     @FXML
     private void loadMiner(ActionEvent event){
+
         // Get all options
         String minerPath = miner_path_textField.getText().trim();
         String poolAddress = pool_address_textField.getText().trim();
@@ -161,8 +162,8 @@ public class mainController {
                 }
 
                 // Run transitions
-                setup_vboxFT.play();
-                mining_vboxFT.play();
+                setup_vboxPT.play();
+                mining_vboxPT.play();
                 mining_vbox.setVisible(true);
 
                 // Get summary results from the API every second and update labels
@@ -226,13 +227,31 @@ public class mainController {
 
     public void initialize() {
         // Setup transitions
-        setup_vboxFT = new FadeTransition(Duration.millis(1500), setup_vbox);
+        Integer transitionDuration = 2000;
+
+        FadeTransition setup_vboxFT = new FadeTransition(Duration.millis(transitionDuration), setup_vbox);
         setup_vboxFT.setFromValue(1.0);
         setup_vboxFT.setToValue(0.0);
+        TranslateTransition setup_vboxTT = new TranslateTransition(Duration.millis(transitionDuration), setup_vbox);
+        setup_vboxTT.setFromX(0);
+        setup_vboxTT.setToX(-300);
+        setup_vboxPT = new ParallelTransition();
+        setup_vboxPT.getChildren().addAll(
+                setup_vboxFT,
+                setup_vboxTT
+        );
 
-        mining_vboxFT = new FadeTransition(Duration.millis(1500), mining_vbox);
+        FadeTransition mining_vboxFT = new FadeTransition(Duration.millis(transitionDuration), mining_vbox);
         mining_vboxFT.setFromValue(0.0);
         mining_vboxFT.setToValue(1.0);
+        TranslateTransition mining_vboxTT = new TranslateTransition(Duration.millis(transitionDuration), mining_vbox);
+        mining_vboxTT.setFromX(300);
+        mining_vboxTT.setToX(0);
+        mining_vboxPT = new ParallelTransition();
+        mining_vboxPT.getChildren().addAll(
+                mining_vboxFT,
+                mining_vboxTT
+        );
 
         garlic_imageRT = new RotateTransition(Duration.millis(3000), garlic_image);
         garlic_imageRT.setByAngle(360);
