@@ -3,14 +3,23 @@ package main.view;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 public class cmdThread implements Runnable {
 
-    private static String cmdString;
-    private static String exeName;
+    private String cmdString;
+    private String exeName;
+    private PrintWriter logWriter;
 
-    public cmdThread(String to_execute, String minerExecutable) {
+    public cmdThread(String to_execute, String minerExecutable, String logFileName) {
         // Allow use in run
+
+        try {
+            logWriter = new PrintWriter(logFileName, "UTF-8");
+        } catch (IOException e) {
+            stacktraceAlert.create("Log file error", "cmdThread.logWriter threw IOException", "Cannot create new PrintWriter", e);
+        }
+
         cmdString = to_execute;
         exeName = minerExecutable;
         System.out.println("exeName: " + exeName);
@@ -36,18 +45,18 @@ public class cmdThread implements Runnable {
                 } catch (IOException e) {
                     // Do nothing
                 }
+                // Finally, close log file
+                logWriter.close();
             }));
 
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
             while (true) {
                 // Read lines from output and make sure everything is still working
                 // This is needed for it to work
-                if (r.readLine() == null) break;
-
-                // Debugging - print output from child process
-                // // String line = r.readLine();
-                // // if (line == null) { break; }
-                // // System.out.println("DEBUG: " + line);
+                String line = r.readLine();
+                if (line == null) break;
+                // Don't log API info (no point, will just create massive file)
+                if (!line.contains("API: ") && !line.trim().equals("") && !line.trim().equals("'")) logWriter.println(line);
             }
 
         }

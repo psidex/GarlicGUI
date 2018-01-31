@@ -132,7 +132,7 @@ public class mainController {
         // Get miner name from path
         String minerExecutable = new File(miner_path_textField.getText()).getName();
         // Thread for running miner executable
-        Runnable minerCMDThread = new cmdThread(to_execute, minerExecutable);
+        Runnable minerCMDThread = new cmdThread(to_execute, minerExecutable, "minerCMDThread.log");
         new Thread(minerCMDThread).start();
 
         // Thread for running API requests & updating GUI with results
