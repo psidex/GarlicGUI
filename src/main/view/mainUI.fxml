@@ -14,80 +14,76 @@
 <?import javafx.scene.control.RadioButton?>
 <StackPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.view.mainController" minWidth="900" minHeight="700" prefWidth="900" prefHeight="700">
 
-    <VBox fx:id="setup_vbox" alignment="CENTER" spacing="30">
+    <VBox fx:id="setupVBox" alignment="CENTER" spacing="30">
         <Label styleClass="title" text="GarlicGUI" textAlignment="CENTER"/>
-        <ImageView fx:id="garlic_image" fitHeight="227" fitWidth="227" preserveRatio="true">
-            <image>
-                <Image url="@../resources/images/garlicoin.png"/>
-            </image>
+        <ImageView fx:id="garlicImg" fitHeight="227" fitWidth="227" preserveRatio="true">
+            <Image url="@../resources/images/garlicoin.png"/>
         </ImageView>
         <HBox alignment="CENTER" spacing="10">
-            <RadioButton fx:id="nvidia_RadioButton" text="Nvidia" alignment="CENTER" minWidth="20"/>
-            <RadioButton fx:id="amd_RadioButton" text="AMD" alignment="CENTER" minWidth="20"/>
+            <RadioButton fx:id="NvidiaRadioButton" text="Nvidia" alignment="CENTER" minWidth="20"/>
+            <RadioButton fx:id="AMDRadioButton" text="AMD" alignment="CENTER" minWidth="20"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label text="Path to miner executable"/>
-            <TextField fx:id="miner_path_textField" minWidth="400" maxWidth="400" promptText="For example: C:\Users\username\Desktop\sgminer\sgminer.exe"/>
-            <Button fx:id="miner_path_button" text="Select path" onAction="#findMinerPath"/>
+            <TextField fx:id="minerPathTextField" minWidth="400" maxWidth="400" promptText="e.g. C:\Users\username\Desktop\sgminer\sgminer.exe"/>
+            <Button fx:id="minerPathButton" text="Select path" onAction="#findMinerPath"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label text="Your GRLC address"/>
-            <TextField fx:id="grlc_address_textField" minWidth="400" maxWidth="400" promptText="For example: GJbKUzCbAezNZuQJkahqptvT2CpYywMSFj"/>
+            <TextField fx:id="GRLCAddressTextField" minWidth="400" maxWidth="400" promptText="e.g. GJbKUzCbAezNZuQJkahqptvT2CpYywMSFj"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label text="Pool address"/>
-            <TextField fx:id="pool_address_textField" minWidth="400" maxWidth="400" promptText="For example: stratum+tcp://freshgarlicblocks.net:3032"/>
+            <TextField fx:id="poolAddressTextField" minWidth="400" maxWidth="400" promptText="e.g. stratum+tcp://freshgarlicblocks.net:3032"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <VBox>
                 <Label text="Pool password"/>
-                <TextField fx:id="pool_pword_textField" minWidth="140" maxWidth="140" promptText="Default: none (x)"/>
+                <TextField fx:id="poolPwordTextField" minWidth="140" maxWidth="140" promptText="Default: none (x)"/>
             </VBox>
             <VBox>
                 <Label text="Mining intensity"/>
-                <TextField fx:id="miner_intensity_textField" minWidth="140" maxWidth="140" promptText="Default: 12"/>
+                <TextField fx:id="minerIntensityTextField" minWidth="140" maxWidth="140" promptText="Default: 12"/>
             </VBox>
             <VBox>
                 <Label text="Extra miner flags"/>
-                <TextField fx:id="miner_flags_textField" minWidth="140" maxWidth="140"/>
+                <TextField fx:id="minerFlagsTextField" minWidth="140" maxWidth="140" promptText="e.g. --timeout=100"/>
             </VBox>
         </HBox>
-        <Button fx:id="go_button" text="Start Mining" onAction="#loadMiner"/>
+        <Button fx:id="goButton" text="Start Mining" onAction="#loadMiner"/>
     </VBox>
 
-    <VBox fx:id="mining_vbox" alignment="CENTER" spacing="30" visible="false" opacity="0">
+    <VBox fx:id="miningVBox" alignment="CENTER" spacing="30" visible="false" opacity="0">
         <Label styleClass="title" text="GarlicGUI" textAlignment="CENTER"/>
         <ImageView fitHeight="227" fitWidth="227" preserveRatio="true">
-            <image>
-                <Image url="@../resources/images/garlicoin.png"/>
-            </image>
+            <Image url="@../resources/images/garlicoin.png"/>
         </ImageView>
         <HBox alignment="CENTER" spacing="10" minWidth="900">
-            <Label fx:id="mining_on_Label" text="-" alignment="CENTER"/>
+            <Label fx:id="miningOnLabel" text="-" alignment="CENTER"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label text="Time elapsed:" alignment="CENTER"/>
-            <Label fx:id="time_elapsed_Label" text="0Kh/s" alignment="CENTER"/>
+            <Label fx:id="timeElapsedLabel" text="0Kh/s" alignment="CENTER"/>
         </HBox>
-        <HBox fx:id="amd_hashrate_avg_HBox" alignment="CENTER" spacing="10">
+        <HBox fx:id="AMDHashrateAvgHBox" alignment="CENTER" spacing="10">
             <Label text="Hashrate (avg):"/>
-            <Label fx:id="amd_hashrate_avg_Label" text="0Kh/s"/>
+            <Label fx:id="AMDHashrateAvgLabel" text="0Kh/s"/>
         </HBox>
-        <HBox fx:id="amd_hashrate_5s_HBox" alignment="CENTER" spacing="10">
+        <HBox fx:id="AMDHashrate5sHBox" alignment="CENTER" spacing="10">
             <Label text="Hashrate (5s):"/>
-            <Label fx:id="amd_hashrate_5s_Label" text="0Kh/s"/>
+            <Label fx:id="AMDHashrate5sLabel" text="0Kh/s"/>
         </HBox>
-        <HBox fx:id="nvidia_hashrate_HBox" alignment="CENTER" spacing="10">
+        <HBox fx:id="NvidiaHashrateHBox" alignment="CENTER" spacing="10">
             <Label text="Hashrate:"/>
-            <Label fx:id="nvidia_hashrate_Label" text="0Kh/s"/>
+            <Label fx:id="NvidiaHashrateLabel" text="0Kh/s"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label text="Accepted shares:"/>
-            <Label fx:id="accepted_shares_Label" text="0"/>
+            <Label fx:id="acceptedSharesLabel" text="0"/>
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Label text="Rejected shares:"/>
-            <Label fx:id="rejected_shares_Label" text="0"/>
+            <Label fx:id="rejectedSharesLabel" text="0"/>
         </HBox>
         <Button text="Stop Mining" onAction="#stopMiner"/>
     </VBox>

@@ -7,6 +7,17 @@
     -fx-text-fill: white;
 }
 
+.context-menu {
+    -fx-font-family: "Fira Sans Regular";
+    -fx-text-fill: black;
+}
+.menu-item .label {
+    -fx-text-fill: black;
+}
+.menu-item:focused .label {
+    -fx-text-fill: black;
+}
+
 .title {
     -fx-font-size: 50;
 }
@@ -15,6 +26,6 @@
     -fx-text-fill: black;
 }
 
-#nvidia_RadioButton, #amd_RadioButton {
+#NvidiaRadioButton, #AMDRadioButton {
     -fx-text-fill: white;
 }

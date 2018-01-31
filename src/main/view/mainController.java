@@ -27,28 +27,28 @@ public class mainController {
     private RotateTransition garlic_imageRT;
 
     @FXML
-    VBox setup_vbox;
+    VBox setupVBox;
     @FXML
-    ImageView garlic_image;
+    ImageView garlicImg;
     @FXML
-    RadioButton nvidia_RadioButton, amd_RadioButton;
+    RadioButton NvidiaRadioButton, AMDRadioButton;
     @FXML
-    TextField grlc_address_textField, pool_address_textField, pool_pword_textField;
+    TextField GRLCAddressTextField, poolAddressTextField, poolPwordTextField;
     @FXML
-    TextField miner_path_textField, miner_intensity_textField, miner_flags_textField;
+    TextField minerPathTextField, minerIntensityTextField, minerFlagsTextField;
     @FXML
-    Button go_button;
+    Button goButton;
 
     @FXML
-    VBox mining_vbox;
+    VBox miningVBox;
     @FXML
-    Label amd_hashrate_avg_Label, amd_hashrate_5s_Label, nvidia_hashrate_Label, mining_on_Label, time_elapsed_Label;
+    Label AMDHashrateAvgLabel, AMDHashrate5sLabel, NvidiaHashrateLabel, miningOnLabel, timeElapsedLabel;
     @FXML
-    Label accepted_shares_Label, rejected_shares_Label;
+    Label acceptedSharesLabel, rejectedSharesLabel;
     @FXML
-    HBox amd_hashrate_avg_HBox, amd_hashrate_5s_HBox, nvidia_hashrate_HBox;
+    HBox AMDHashrateAvgHBox, AMDHashrate5sHBox, NvidiaHashrateHBox;
     @FXML
-    Button miner_path_button;
+    Button minerPathButton;
 
     @FXML
     private void findMinerPath(ActionEvent event) {
@@ -60,22 +60,23 @@ public class mainController {
         fileChooser.setTitle("miner executable");
         fileChooser.setInitialDirectory(new File("C:/"));
         File selectedFile = fileChooser.showOpenDialog(thisStage);
+        if (selectedFile == null) return;
         // Set chosen dir to textField
-        miner_path_textField.setText(selectedFile.toString());
+        minerPathTextField.setText(selectedFile.toString());
     }
 
     @FXML
     private void loadMiner(ActionEvent event){
 
         // Get all options
-        String minerPath = miner_path_textField.getText().trim();
-        String poolAddress = pool_address_textField.getText().trim();
-        String poolPassword = pool_pword_textField.getText().trim();
-        String GRLCAddress = grlc_address_textField.getText().trim();
-        String minerIntensity = miner_intensity_textField.getText().trim();
-        String minerFlags = miner_flags_textField.getText().trim();
+        String minerPath = minerPathTextField.getText().trim();
+        String poolAddress = poolAddressTextField.getText().trim();
+        String poolPassword = poolPwordTextField.getText().trim();
+        String GRLCAddress = GRLCAddressTextField.getText().trim();
+        String minerIntensity = minerIntensityTextField.getText().trim();
+        String minerFlags = minerFlagsTextField.getText().trim();
 
-        if (minerPath.isEmpty() || poolAddress.isEmpty() || GRLCAddress.isEmpty() || (!nvidia_RadioButton.isSelected() == !amd_RadioButton.isSelected())) {
+        if (minerPath.isEmpty() || poolAddress.isEmpty() || GRLCAddress.isEmpty() || (!NvidiaRadioButton.isSelected() == !AMDRadioButton.isSelected())) {
             informationAlert.create("Information", "Required settings are empty", "All of: gpu selection, miner path, pool address, and GRLC address have to be filled out");
             return;
         }
@@ -83,32 +84,32 @@ public class mainController {
         saveSettings();
 
         // Disable all input
-        nvidia_RadioButton.setDisable(true);
-        amd_RadioButton.setDisable(true);
-        go_button.setDisable(true);
-        miner_path_textField.setDisable(true);
-        grlc_address_textField.setDisable(true);
-        pool_address_textField.setDisable(true);
-        pool_pword_textField.setDisable(true);
-        miner_intensity_textField.setDisable(true);
-        miner_flags_textField.setDisable(true);
-        miner_path_button.setDisable(true);
+        NvidiaRadioButton.setDisable(true);
+        AMDRadioButton.setDisable(true);
+        goButton.setDisable(true);
+        minerPathTextField.setDisable(true);
+        GRLCAddressTextField.setDisable(true);
+        poolAddressTextField.setDisable(true);
+        poolPwordTextField.setDisable(true);
+        minerIntensityTextField.setDisable(true);
+        minerFlagsTextField.setDisable(true);
+        minerPathButton.setDisable(true);
 
         // exe path, pool address, GRLC address, mining intensity, pool password, extra flags
         String sgminer_cmd = "%s --algorithm scrypt-n --nfactor 11 -o %s -u %s -I %s -p %s --api-listen --api-allow W:127.0.0.1 %s";
         String ccminer_cmd = "%s --algo=scrypt:10 -o %s -u %s -i %s -p %s -listen -b 127.0.0.1:4028 %s";
 
-        mining_on_Label.setText(poolAddress);
+        miningOnLabel.setText(poolAddress);
 
         String cmdToUse = "";
-        if (nvidia_RadioButton.isSelected()) {
+        if (NvidiaRadioButton.isSelected()) {
             cmdToUse = ccminer_cmd;
-            mining_vbox.getChildren().remove(amd_hashrate_avg_HBox);
-            mining_vbox.getChildren().remove(amd_hashrate_5s_HBox);
+            miningVBox.getChildren().remove(AMDHashrateAvgHBox);
+            miningVBox.getChildren().remove(AMDHashrate5sHBox);
         }
-        else if (amd_RadioButton.isSelected()){
+        else if (AMDRadioButton.isSelected()){
             cmdToUse = sgminer_cmd;
-            mining_vbox.getChildren().remove(nvidia_hashrate_HBox);
+            miningVBox.getChildren().remove(NvidiaHashrateHBox);
         }
         // Check for blank radio button has already happened
 
@@ -128,7 +129,7 @@ public class mainController {
         garlic_imageRT.play();
 
         // Get miner name from path
-        String minerExecutable = new File(miner_path_textField.getText()).getName();
+        String minerExecutable = new File(minerPathTextField.getText()).getName();
         // Thread for running miner executable
         Runnable minerCMDThread = new cmdThread(to_execute, minerExecutable, "minerCMDThread.log");
         new Thread(minerCMDThread).start();
@@ -164,13 +165,13 @@ public class mainController {
                 // Run transitions
                 setup_vboxPT.play();
                 mining_vboxPT.play();
-                mining_vbox.setVisible(true);
+                miningVBox.setVisible(true);
 
                 // Get summary results from the API every second and update labels
                 // For some reason the API only responds to 1 request, so a new connection has to be made for each api request
                 // ToDo: Maybe implement dev api (gpu usage, temp, etc.)
                 while (true) {
-                    if (amd_RadioButton.isSelected()) amdUpdateInfo(minerSocket);
+                    if (AMDRadioButton.isSelected()) amdUpdateInfo(minerSocket);
                     else nvidiaUpdateInfo(minerSocket);
                 }
 
@@ -190,21 +191,21 @@ public class mainController {
         JSONObject api_summary_jsonObject = SGMinerAPI.pingInfo(miner_api);
         // runLater() allows updating GUI from inside another Thread
         Platform.runLater(() -> {
-            time_elapsed_Label.setText(api_summary_jsonObject.get("Elapsed").toString() + "s");
-            amd_hashrate_avg_Label.setText(api_summary_jsonObject.get("KHS av").toString() + " Kh/s");
-            amd_hashrate_5s_Label.setText(api_summary_jsonObject.get("KHS 5s").toString() + " Kh/s");
-            accepted_shares_Label.setText(api_summary_jsonObject.get("Accepted").toString());
-            rejected_shares_Label.setText(api_summary_jsonObject.get("Rejected").toString());
+            timeElapsedLabel.setText(api_summary_jsonObject.get("Elapsed").toString() + "s");
+            AMDHashrateAvgLabel.setText(api_summary_jsonObject.get("KHS av").toString() + " Kh/s");
+            AMDHashrate5sLabel.setText(api_summary_jsonObject.get("KHS 5s").toString() + " Kh/s");
+            acceptedSharesLabel.setText(api_summary_jsonObject.get("Accepted").toString());
+            rejectedSharesLabel.setText(api_summary_jsonObject.get("Rejected").toString());
         });
     }
 
     private void nvidiaUpdateInfo(socketObject miner_api) throws IOException {
         Map<String, String> api_summary_map = CCMinerAPI.pingInfo(miner_api);
         Platform.runLater(() -> {
-            time_elapsed_Label.setText(api_summary_map.get("Uptime") + "s");
-            nvidia_hashrate_Label.setText(api_summary_map.get("KHS") + " Kh/s");
-            accepted_shares_Label.setText(api_summary_map.get("Accepted"));
-            rejected_shares_Label.setText(api_summary_map.get("Rejected"));
+            timeElapsedLabel.setText(api_summary_map.get("Uptime") + "s");
+            NvidiaHashrateLabel.setText(api_summary_map.get("KHS") + " Kh/s");
+            acceptedSharesLabel.setText(api_summary_map.get("Accepted"));
+            rejectedSharesLabel.setText(api_summary_map.get("Rejected"));
         });
     }
 
@@ -212,16 +213,16 @@ public class mainController {
         // Save current settings to file using settings class
         Map<String, String> settingsObj = new HashMap<>();
 
-        String gpu = "";
-        if (nvidia_RadioButton.isSelected()) gpu = "nvidia";
-        else if (amd_RadioButton.isSelected()) gpu = "amd";
+        String gpu;
+        if (NvidiaRadioButton.isSelected()) gpu = "nvidia";
+        else gpu = "amd";
 
-        settingsObj.put("gpu_type", gpu);
-        settingsObj.put("miner_path", miner_path_textField.getText().trim());
-        settingsObj.put("grlc_address", grlc_address_textField.getText().trim());
-        settingsObj.put("pool_address", pool_address_textField.getText().trim());
-        settingsObj.put("miner_intensity", miner_intensity_textField.getText().trim());
-        settingsObj.put("miner_flags", miner_flags_textField.getText().trim());
+        settingsObj.put("GPUType", gpu);
+        settingsObj.put("minerPath", minerPathTextField.getText().trim());
+        settingsObj.put("GRLCAddress", GRLCAddressTextField.getText().trim());
+        settingsObj.put("poolAddress", poolAddressTextField.getText().trim());
+        settingsObj.put("minerIntensity", minerIntensityTextField.getText().trim());
+        settingsObj.put("minerFlags", minerFlagsTextField.getText().trim());
         settings.setSettings(settingsObj);
     }
 
@@ -229,10 +230,10 @@ public class mainController {
         // Setup transitions
         Integer transitionDuration = 2000;
 
-        FadeTransition setup_vboxFT = new FadeTransition(Duration.millis(transitionDuration), setup_vbox);
+        FadeTransition setup_vboxFT = new FadeTransition(Duration.millis(transitionDuration), setupVBox);
         setup_vboxFT.setFromValue(1.0);
         setup_vboxFT.setToValue(0.0);
-        TranslateTransition setup_vboxTT = new TranslateTransition(Duration.millis(transitionDuration), setup_vbox);
+        TranslateTransition setup_vboxTT = new TranslateTransition(Duration.millis(transitionDuration), setupVBox);
         setup_vboxTT.setFromX(0);
         setup_vboxTT.setToX(-300);
         setup_vboxPT = new ParallelTransition();
@@ -241,10 +242,10 @@ public class mainController {
                 setup_vboxTT
         );
 
-        FadeTransition mining_vboxFT = new FadeTransition(Duration.millis(transitionDuration), mining_vbox);
+        FadeTransition mining_vboxFT = new FadeTransition(Duration.millis(transitionDuration), miningVBox);
         mining_vboxFT.setFromValue(0.0);
         mining_vboxFT.setToValue(1.0);
-        TranslateTransition mining_vboxTT = new TranslateTransition(Duration.millis(transitionDuration), mining_vbox);
+        TranslateTransition mining_vboxTT = new TranslateTransition(Duration.millis(transitionDuration), miningVBox);
         mining_vboxTT.setFromX(300);
         mining_vboxTT.setToX(0);
         mining_vboxPT = new ParallelTransition();
@@ -253,28 +254,28 @@ public class mainController {
                 mining_vboxTT
         );
 
-        garlic_imageRT = new RotateTransition(Duration.millis(3000), garlic_image);
+        garlic_imageRT = new RotateTransition(Duration.millis(3000), garlicImg);
         garlic_imageRT.setByAngle(360);
         garlic_imageRT.setCycleCount(Animation.INDEFINITE);
         garlic_imageRT.setInterpolator(Interpolator.LINEAR);
 
         // Radio buttons
         ToggleGroup GPUToggleGroup = new ToggleGroup();
-        nvidia_RadioButton.setToggleGroup(GPUToggleGroup);
-        amd_RadioButton.setToggleGroup(GPUToggleGroup);
+        NvidiaRadioButton.setToggleGroup(GPUToggleGroup);
+        AMDRadioButton.setToggleGroup(GPUToggleGroup);
 
         // Load all previous settings from file using settings class
         Map<String, String> settingsObj = settings.getSettings();
 
-        String gpu = settingsObj.get("gpu_type");
-        if (gpu.equals("nvidia")) GPUToggleGroup.selectToggle(nvidia_RadioButton);
-        else if (gpu.equals("amd")) GPUToggleGroup.selectToggle(amd_RadioButton);
+        String gpu = settingsObj.get("GPUType");
+        if (gpu.equals("nvidia")) GPUToggleGroup.selectToggle(NvidiaRadioButton);
+        else GPUToggleGroup.selectToggle(AMDRadioButton);
 
-        miner_path_textField.setText(settingsObj.get("miner_path"));
-        grlc_address_textField.setText(settingsObj.get("grlc_address"));
-        pool_address_textField.setText(settingsObj.get("pool_address"));
-        miner_intensity_textField.setText(settingsObj.get("miner_intensity"));
-        miner_flags_textField.setText(settingsObj.get("miner_flags"));
+        minerPathTextField.setText(settingsObj.get("minerPath"));
+        GRLCAddressTextField.setText(settingsObj.get("GRLCAddress"));
+        poolAddressTextField.setText(settingsObj.get("poolAddress"));
+        minerIntensityTextField.setText(settingsObj.get("minerIntensity"));
+        minerFlagsTextField.setText(settingsObj.get("minerFlags"));
     }
 
 }
