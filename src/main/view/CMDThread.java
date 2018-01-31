@@ -16,18 +16,20 @@ public class CMDThread implements Runnable {
         try {
             logWriter = new PrintWriter(logFileName, "UTF-8");
         } catch (IOException e) {
-            StacktraceAlert.create("Log file error", "CMDThread.logWriter threw IOException", "Cannot create new PrintWriter", e);
+            StacktraceAlert.create(
+                    "Log file error",
+                    "Cannot create new PrintWriter to " + logFileName,
+                    "CMDThread.logWriter threw IOException",
+                    e
+            );
         }
 
         cmdString = to_execute;
         exeName = minerExecutable;
-        System.out.println("exeName: " + exeName);
 
     }
 
     public void run(){
-
-        System.out.println("sgminer_cmd_thread started");
 
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", cmdString);
         builder.redirectErrorStream(true);

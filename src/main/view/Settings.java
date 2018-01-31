@@ -23,7 +23,6 @@ public class Settings {
 
             in.close();
             fileIn.close();
-            System.out.println("Serialized Settings map loaded");
         } catch (IOException | ClassNotFoundException e) {
             StacktraceAlert.create("Exception occurred", "Does Settings/Settings.ser exist?", "Exception in Settings.getSettings", e);
         }
@@ -37,7 +36,6 @@ public class Settings {
             out.writeObject(mapObj);
             out.close();
             fileOut.close();
-            System.out.println("Serialized Settings map saved");
         } catch (IOException e) {
             StacktraceAlert.create("Exception occurred", "Does Settings/Settings.ser exist?", "Exception in Settings.setSettings", e);
         }

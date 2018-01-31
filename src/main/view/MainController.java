@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +22,11 @@ import javafx.event.ActionEvent;
 import javafx.application.Platform;
 import javafx.util.Duration;
 
+// ToDo: Allow user to disable / enable logging (both MainController & CMDThread logging separately)
+
 public class MainController {
 
+    private PrintWriter logWriter;
     private ParallelTransition setup_vboxPT, mining_vboxPT;
     private RotateTransition garlic_imageRT;
 
@@ -82,6 +86,7 @@ public class MainController {
         }
 
         saveSettings();
+        logWriter.println("Serialized Settings map saved");
 
         // Disable all input
         NvidiaRadioButton.setDisable(true);
@@ -123,7 +128,7 @@ public class MainController {
                 poolPassword.isEmpty() ? "x" : poolPassword,
                 minerFlags
         );
-        System.out.println("Executing: " + to_execute);
+        logWriter.println("Executing: " + to_execute);
 
         // Start rotating symbol to show loading
         garlic_imageRT.play();
@@ -133,10 +138,11 @@ public class MainController {
         // Thread for running miner executable
         Runnable minerCMDThread = new CMDThread(to_execute, minerExecutable, "minerCMDThread.log");
         new Thread(minerCMDThread).start();
+        logWriter.println("sgminer_cmd_thread started");
 
         // Thread for running API requests & updating GUI with results
         new Thread(() -> {
-            System.out.println("miner_api_thread started");
+            logWriter.println("miner_api_thread started");
 
             // Keep attempting API connection until successful
             Integer attemptCount = 0;
@@ -157,7 +163,7 @@ public class MainController {
                         attemptCount++;
                         continue;
                     }
-                    System.out.println("Connected to API");
+                    logWriter.println("Connected to API");
                     minerSocket.stopConnection();
                     break;
                 }
@@ -169,7 +175,7 @@ public class MainController {
 
                 // Get summary results from the API every second and update labels
                 // For some reason the API only responds to 1 request, so a new connection has to be made for each api request
-                // ToDo: Maybe implement dev api (gpu usage, temp, etc.)
+                // ToDo: Implement dev api (gpu usage, temp, etc.)
                 while (true) {
                     if (AMDRadioButton.isSelected()) amdUpdateInfo(minerSocket);
                     else nvidiaUpdateInfo(minerSocket);
@@ -183,6 +189,7 @@ public class MainController {
 
     @FXML
     private void stopMiner() {
+        logWriter.println("stopMiner() called, exiting");
         Platform.exit();
         System.exit(0);
     }
@@ -227,6 +234,23 @@ public class MainController {
     }
 
     public void initialize() {
+        // Setup logging to file
+        try {
+            logWriter = new PrintWriter("GarlicGUI.log", "UTF-8");
+        } catch (IOException e) {
+            StacktraceAlert.create(
+                    "Log file error",
+                    "Cannot create new PrintWriter to GarlicGUI.log",
+                    "MainController.initialize threw IOException",
+                    e
+            );
+        }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            // Close log file
+            logWriter.close();
+        }));
+
         // Setup transitions
         Integer transitionDuration = 2000;
 
@@ -266,6 +290,7 @@ public class MainController {
 
         // Load all previous Settings from file using Settings class
         Map<String, String> settingsObj = Settings.getSettings();
+        logWriter.println("Serialized Settings map loaded");
 
         String gpu = settingsObj.get("GPUType");
         if (gpu.equals("nvidia")) GPUToggleGroup.selectToggle(NvidiaRadioButton);
