@@ -11,7 +11,7 @@ public class CMDThread implements Runnable {
     private String exeName;
     private PrintWriter logWriter;
 
-    public CMDThread(String to_execute, String minerExecutable, String logFileName) {
+    CMDThread(String to_execute, String minerExecutable, String logFileName) {
 
         try {
             logWriter = new PrintWriter(logFileName, "UTF-8");

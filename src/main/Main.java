@@ -21,12 +21,9 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(root, 900, 700));
 
         // Kill process when window closed (if "Stop mining" button not used)
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent t) {
-                Platform.exit();
-                System.exit(0);
-            }
+        primaryStage.setOnCloseRequest(t -> {
+            Platform.exit();
+            System.exit(0);
         });
 
         primaryStage.show();

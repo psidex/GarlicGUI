@@ -66,7 +66,7 @@ public class MainController {
     }
 
     @FXML
-    private void loadMiner(ActionEvent event){
+    private void loadMiner(){
 
         // Get all options
         String minerPath = minerPathTextField.getText().trim();
@@ -182,7 +182,7 @@ public class MainController {
     }
 
     @FXML
-    private void stopMiner(ActionEvent event) {
+    private void stopMiner() {
         Platform.exit();
         System.exit(0);
     }
