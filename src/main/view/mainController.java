@@ -1,29 +1,30 @@
 package main.view;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import javafx.animation.*;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.Node;
+import javafx.scene.layout.VBox;
+import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
-import org.json.JSONObject;
-
+import javafx.stage.Window;
 import javafx.fxml.FXML;
 import javafx.event.ActionEvent;
 import javafx.application.Platform;
 import javafx.util.Duration;
-import javafx.stage.Window;
-import javafx.scene.Node;
-import javafx.scene.layout.VBox;
-import javafx.scene.image.ImageView;
-import javafx.animation.Animation;
-import javafx.animation.Interpolator;
-import javafx.animation.RotateTransition;
 
 public class mainController {
+
+    FadeTransition setup_vboxFT, mining_vboxFT;
+    RotateTransition garlic_imageRT;
 
     @FXML
     VBox setup_vbox;
@@ -123,11 +124,7 @@ public class mainController {
         System.out.println("Executing: " + to_execute);
 
         // Start rotating symbol to show loading
-        RotateTransition garlic_image_rot = new RotateTransition(Duration.millis(3000), garlic_image);
-        garlic_image_rot.setByAngle(360);
-        garlic_image_rot.setCycleCount(Animation.INDEFINITE);
-        garlic_image_rot.setInterpolator(Interpolator.LINEAR);
-        garlic_image_rot.play();
+        garlic_imageRT.play();
 
         // Get miner name from path
         String minerExecutable = new File(miner_path_textField.getText()).getName();
@@ -138,8 +135,9 @@ public class mainController {
         // Thread for running API requests & updating GUI with results
         new Thread(() -> {
             System.out.println("miner_api_thread started");
-            Integer attemptCount = 0;
 
+            // Keep attempting API connection until successful
+            Integer attemptCount = 0;
             try {
                 socketObject minerSocket = new socketObject();
 
@@ -162,14 +160,15 @@ public class mainController {
                     break;
                 }
 
-                setup_vbox.setVisible(false);
+                // Run transitions
+                setup_vboxFT.play();
+                mining_vboxFT.play();
                 mining_vbox.setVisible(true);
 
                 // Get summary results from the API every second and update labels
                 // For some reason the API only responds to 1 request, so a new connection has to be made for each api request
                 // ToDo: Maybe implement dev api (gpu usage, temp, etc.)
                 while (true) {
-                    // ToDo: Find a better way of doing this
                     if (amd_RadioButton.isSelected()) amdUpdateInfo(minerSocket);
                     else nvidiaUpdateInfo(minerSocket);
                 }
@@ -200,7 +199,6 @@ public class mainController {
 
     private void nvidiaUpdateInfo(socketObject miner_api) throws IOException {
         Map<String, String> api_summary_map = CCMinerAPI.pingInfo(miner_api);
-        // runLater() allows updating GUI from inside another Thread
         Platform.runLater(() -> {
             time_elapsed_Label.setText(api_summary_map.get("Uptime") + "s");
             nvidia_hashrate_Label.setText(api_summary_map.get("KHS") + " Kh/s");
@@ -227,6 +225,21 @@ public class mainController {
     }
 
     public void initialize() {
+        // Setup transitions
+        setup_vboxFT = new FadeTransition(Duration.millis(1500), setup_vbox);
+        setup_vboxFT.setFromValue(1.0);
+        setup_vboxFT.setToValue(0.0);
+
+        mining_vboxFT = new FadeTransition(Duration.millis(1500), mining_vbox);
+        mining_vboxFT.setFromValue(0.0);
+        mining_vboxFT.setToValue(1.0);
+
+        garlic_imageRT = new RotateTransition(Duration.millis(3000), garlic_image);
+        garlic_imageRT.setByAngle(360);
+        garlic_imageRT.setCycleCount(Animation.INDEFINITE);
+        garlic_imageRT.setInterpolator(Interpolator.LINEAR);
+
+        // Radio buttons
         ToggleGroup GPUToggleGroup = new ToggleGroup();
         nvidia_RadioButton.setToggleGroup(GPUToggleGroup);
         amd_RadioButton.setToggleGroup(GPUToggleGroup);

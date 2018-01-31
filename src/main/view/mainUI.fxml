@@ -55,7 +55,7 @@
         <Button fx:id="go_button" text="Start Mining" onAction="#loadMiner"/>
     </VBox>
 
-    <VBox fx:id="mining_vbox" alignment="CENTER" spacing="30" visible="false">
+    <VBox fx:id="mining_vbox" alignment="CENTER" spacing="30" visible="false" opacity="0">
         <Label styleClass="title" text="GarlicGUI" textAlignment="CENTER"/>
         <ImageView fitHeight="227" fitWidth="227" preserveRatio="true">
             <image>

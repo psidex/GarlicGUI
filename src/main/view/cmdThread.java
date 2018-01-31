@@ -12,7 +12,6 @@ public class cmdThread implements Runnable {
     private PrintWriter logWriter;
 
     public cmdThread(String to_execute, String minerExecutable, String logFileName) {
-        // Allow use in run
 
         try {
             logWriter = new PrintWriter(logFileName, "UTF-8");
@@ -23,6 +22,7 @@ public class cmdThread implements Runnable {
         cmdString = to_execute;
         exeName = minerExecutable;
         System.out.println("exeName: " + exeName);
+
     }
 
     public void run(){
