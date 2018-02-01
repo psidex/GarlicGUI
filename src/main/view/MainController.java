@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,7 +87,7 @@ public class MainController {
         }
 
         saveSettings();
-        logWriter.println("Serialized Settings map saved");
+        logText("Serialized Settings map saved");
 
         // Disable all input
         NvidiaRadioButton.setDisable(true);
@@ -126,7 +129,7 @@ public class MainController {
                 poolPassword.isEmpty() ? "x" : poolPassword,
                 minerFlags
         );
-        logWriter.println("Executing: " + to_execute);
+        logText("Executing: " + to_execute);
 
         // Start rotating symbol to show loading
         garlic_imageRT.play();
@@ -136,11 +139,11 @@ public class MainController {
         // Thread for running miner executable
         Runnable minerCMDThread = new CMDThread(to_execute, minerExecutable, "minerCMDThread.log");
         new Thread(minerCMDThread).start();
-        logWriter.println("sgminer_cmd_thread started");
+        logText("minerCMDThread started");
 
         // Thread for running API requests & updating GUI with results
         new Thread(() -> {
-            logWriter.println("miner_api_thread started");
+            logText("miner API thread started");
 
             // Keep attempting API connection until successful
             Integer attemptCount = 0;
@@ -161,7 +164,7 @@ public class MainController {
                         attemptCount++;
                         continue;
                     }
-                    logWriter.println("Connected to API");
+                    logText("Connected to API");
                     minerSocket.stopConnection();
                     break;
                 }
@@ -186,7 +189,7 @@ public class MainController {
 
     @FXML
     private void stopMiner() {
-        logWriter.println("stopMiner() called, exiting");
+        logText("stopMiner() called, exiting");
         Platform.exit();
         System.exit(0);
     }
@@ -232,7 +235,6 @@ public class MainController {
 
     public void initialize() {
         // ToDo: Allow user to disable / enable logging (both MainController & CMDThread logging separately)
-        // ToDo: Prepend time [HH:MM:SS] to start of all lines in log (maybe move logWriter.println to new method)
         // Setup logging to file
         try {
             logWriter = new PrintWriter("GarlicGUI.log", "UTF-8");
@@ -289,7 +291,7 @@ public class MainController {
 
         // Load all previous Settings from file using Settings class
         Map<String, String> settingsObj = Settings.getSettings();
-        logWriter.println("Serialized Settings map loaded");
+        logText("Serialized Settings map loaded");
 
         String gpu = settingsObj.get("GPUType");
         if (gpu.equals("nvidia")) GPUToggleGroup.selectToggle(NvidiaRadioButton);
@@ -300,6 +302,11 @@ public class MainController {
         poolAddressTextField.setText(settingsObj.get("poolAddress"));
         minerIntensityTextField.setText(settingsObj.get("minerIntensity"));
         minerFlagsTextField.setText(settingsObj.get("minerFlags"));
+    }
+
+    private void logText(String text) {
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+        logWriter.println("[" + dateFormat.format(new Date()) + "] " + text);
     }
 
 }
