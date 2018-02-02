@@ -3,13 +3,12 @@ package main.view;
 import org.json.JSONObject;
 
 import java.awt.Desktop;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
