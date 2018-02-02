@@ -10,6 +10,12 @@ The default mining intensity is 12
 
 The IP:Port used for the API is `127.0.0.1:4028`
 
+## Requirements
+
+Find the latest build for your GPUs miner:
+
+[CCMiner](https://github.com/tpruvot/ccminer/releases) | [SGminer](https://github.com/nicehash/sgminer-gm/releases)
+
 ## Instructions
 
  - Test that the miner works by itself before using this GUI
