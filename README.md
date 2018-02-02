@@ -52,7 +52,7 @@ I am not responsible for any damage which might happen when mining. Use at your 
 
 # Sources
 
-Fira Sans font from [here](https://www.fontsquirrel.com/fonts/fira-sans)
+Fira Sans font from https://www.fontsquirrel.com/fonts/fira-sans
 
 ---
 

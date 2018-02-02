@@ -2,10 +2,14 @@ package main.view;
 
 import org.json.JSONObject;
 
+import java.awt.Desktop;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,6 +22,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.scene.image.ImageView;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.fxml.FXML;
@@ -41,6 +48,8 @@ public class MainController {
     TextField GRLCAddressTextField, poolAddressTextField, poolPwordTextField;
     @FXML
     TextField minerPathTextField, minerIntensityTextField, minerFlagsTextField;
+    @FXML
+    Hyperlink helpLink;
     @FXML
     Button goButton;
 
@@ -307,6 +316,23 @@ public class MainController {
     private void logText(String text) {
         DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         logWriter.println("[" + dateFormat.format(new Date()) + "] " + text);
+    }
+
+    @FXML
+    private void openHelp() {
+        try {
+            URL url = new URL("https://github.com/thatguywiththatname/GarlicGUI/blob/master/README.md");
+            URI uri = new URI(url.getProtocol(), url.getHost(), url.getPath(), url.getQuery(), null);
+            Desktop.getDesktop().browse(uri);
+        } catch (URISyntaxException | IOException e) {
+            StacktraceAlert.create(
+                    "Help error",
+                    "Cannot open help URL",
+                    "openHelp threw URISyntaxException or IOException",
+                    e,
+                    false
+            );
+        }
     }
 
 }

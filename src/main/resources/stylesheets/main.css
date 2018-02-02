@@ -29,3 +29,7 @@
 #NvidiaRadioButton, #AMDRadioButton {
     -fx-text-fill: white;
 }
+
+#helpLink {
+    -fx-font-size: 10;
+}

@@ -14,17 +14,17 @@ import javafx.scene.layout.Priority;
 
 public class StacktraceAlert {
 
-    public static void create(String title, String header, String error_reason, Exception exception_obj) {
+    public static void create(String title, String header, String errorReason, Exception exceptionObj, boolean exit) {
 
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(header);
-        alert.setContentText(error_reason);
+        alert.setContentText(errorReason);
 
         // Create expandable Exception.
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        exception_obj.printStackTrace(pw);
+        exceptionObj.printStackTrace(pw);
         String exceptionText = sw.toString();
 
         Label label = new Label("The exception stacktrace was:");
@@ -48,10 +48,17 @@ public class StacktraceAlert {
 
         alert.showAndWait();
 
-        // Stop app when window closed
-        Platform.exit();
-        System.exit(0);
+        if (exit) {
+            // Stop app when window closed
+            Platform.exit();
+            System.exit(0);
+        }
 
+    }
+
+    public static void create(String title, String header, String errorReason, Exception exceptionObj) {
+        // Method overloading - if no exit bool provided then set it to true
+        create(title, header, errorReason, exceptionObj, true);
     }
 
 }
