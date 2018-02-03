@@ -34,8 +34,11 @@ import javafx.util.Duration;
 public class MainController {
 
     private PrintWriter logWriter;
-    private ParallelTransition setup_vboxPT, mining_vboxPT;
-    private RotateTransition garlic_imageRT;
+    private ParallelTransition setupVBBoxPTInLeft, setupVBBoxPTOutLeft;
+    private ParallelTransition miningVBoxPTInRight;
+    private ParallelTransition loggingConfigVBoxPTInRight, loggingConfigVBoxPTOutRight;
+    private RotateTransition garlicImageRT;
+    private boolean minerLoggingChecked, GarlicGUILoggingChecked;
 
     @FXML
     VBox setupVBox;
@@ -50,7 +53,7 @@ public class MainController {
     @FXML
     Hyperlink helpLink;
     @FXML
-    Button goButton;
+    Button goButton, configLogsButton;
 
     @FXML
     VBox miningVBox;
@@ -62,6 +65,49 @@ public class MainController {
     HBox AMDHashrateAvgHBox, AMDHashrate5sHBox, NvidiaHashrateHBox;
     @FXML
     Button minerPathButton;
+
+    @FXML
+    VBox loggingConfigVBox;
+    @FXML
+    CheckBox GarlicGUILoggingCheckBox, minerLoggingCheckBox;
+
+    public void initialize() {
+        // Focus on the only visible VBox
+        setupVBox.toFront();
+
+        // Setup transitions
+        setupVBBoxPTInLeft = Fade.createFadeInLeft(setupVBox);
+        setupVBBoxPTOutLeft = Fade.createFadeOutLeft(setupVBox);
+        miningVBoxPTInRight = Fade.createFadeInRight(miningVBox);
+        loggingConfigVBoxPTInRight = Fade.createFadeInRight(loggingConfigVBox);
+        loggingConfigVBoxPTOutRight = Fade.createFadeOutRight(loggingConfigVBox);
+
+        garlicImageRT = new RotateTransition(Duration.millis(3000), garlicImg);
+        garlicImageRT.setByAngle(360);
+        garlicImageRT.setCycleCount(Animation.INDEFINITE);
+        garlicImageRT.setInterpolator(Interpolator.LINEAR);
+
+        // Radio buttons
+        ToggleGroup GPUToggleGroup = new ToggleGroup();
+        NvidiaRadioButton.setToggleGroup(GPUToggleGroup);
+        AMDRadioButton.setToggleGroup(GPUToggleGroup);
+
+        // Load all previous Settings from file using Settings class
+        Map<String, String> settingsObj = Settings.getSettings();
+        logText("Serialized Settings map loaded");
+
+        String gpu = settingsObj.get("GPUType");
+        if (gpu.equals("nvidia")) GPUToggleGroup.selectToggle(NvidiaRadioButton);
+        else GPUToggleGroup.selectToggle(AMDRadioButton);
+
+        minerPathTextField.setText(settingsObj.get("minerPath"));
+        GRLCAddressTextField.setText(settingsObj.get("GRLCAddress"));
+        poolAddressTextField.setText(settingsObj.get("poolAddress"));
+        minerIntensityTextField.setText(settingsObj.get("minerIntensity"));
+        minerFlagsTextField.setText(settingsObj.get("minerFlags"));
+
+        setupLogging();
+    }
 
     @FXML
     private void findMinerPath(ActionEvent event) {
@@ -77,10 +123,8 @@ public class MainController {
         // Set chosen dir to textField
         minerPathTextField.setText(selectedFile.toString());
     }
-
     @FXML
     private void loadMiner(){
-
         // Get all options
         String minerPath = minerPathTextField.getText().trim();
         String poolAddress = poolAddressTextField.getText().trim();
@@ -108,6 +152,7 @@ public class MainController {
         minerIntensityTextField.setDisable(true);
         minerFlagsTextField.setDisable(true);
         minerPathButton.setDisable(true);
+        configLogsButton.setDisable(true);
 
         // exe path, pool address, GRLC address, mining intensity, pool password, extra flags
         String sgminer_cmd = "%s --algorithm scrypt-n --nfactor 11 -o %s -u %s -I %s -p %s --api-listen --api-allow W:127.0.0.1 %s";
@@ -140,12 +185,12 @@ public class MainController {
         logText("Executing: " + to_execute);
 
         // Start rotating symbol to show loading
-        garlic_imageRT.play();
+        garlicImageRT.play();
 
         // Get miner name from path
         String minerExecutable = new File(minerPathTextField.getText()).getName();
         // Thread for running miner executable
-        Runnable minerCMDThread = new CMDThread(to_execute, minerExecutable, "minerCMDThread.log");
+        Runnable minerCMDThread = new CMDThread(to_execute, minerExecutable, "minerCMDThread.log", minerLoggingChecked);
         new Thread(minerCMDThread).start();
         logText("minerCMDThread started");
 
@@ -178,9 +223,11 @@ public class MainController {
                 }
 
                 // Run transitions
-                setup_vboxPT.play();
-                mining_vboxPT.play();
-                miningVBox.setVisible(true);
+                Platform.runLater(() -> {
+                    setupVBBoxPTOutLeft.play();
+                    miningVBoxPTInRight.play();
+                    miningVBox.toFront();
+                });
 
                 // Get summary results from the API every second and update labels
                 // ToDo: Implement dev api (gpu usage, temp, etc.)
@@ -194,7 +241,6 @@ public class MainController {
             }
         }).start();
     }
-
     @FXML
     private void stopMiner() {
         logText("stopMiner() called, exiting");
@@ -213,7 +259,6 @@ public class MainController {
             rejectedSharesLabel.setText(api_summary_jsonObject.get("Rejected").toString());
         });
     }
-
     private void nvidiaUpdateInfo(SocketObject miner_api) throws IOException {
         Map<String, String> api_summary_map = CCMinerAPI.pingInfo(miner_api);
         Platform.runLater(() -> {
@@ -238,83 +283,54 @@ public class MainController {
         settingsObj.put("poolAddress", poolAddressTextField.getText().trim());
         settingsObj.put("minerIntensity", minerIntensityTextField.getText().trim());
         settingsObj.put("minerFlags", minerFlagsTextField.getText().trim());
+        settingsObj.put("GarlicGUILogging", String.valueOf(GarlicGUILoggingCheckBox.isSelected()));
+        settingsObj.put("minerLogging", String.valueOf(minerLoggingCheckBox.isSelected()));
         Settings.setSettings(settingsObj);
     }
 
-    public void initialize() {
-        // ToDo: Allow user to disable / enable logging (both MainController & CMDThread logging separately)
-        // Setup logging to file
-        try {
-            logWriter = new PrintWriter("GarlicGUI.log", "UTF-8");
-        } catch (IOException e) {
-            StacktraceAlert.create(
-                    "Log file error",
-                    "Cannot create new PrintWriter to GarlicGUI.log",
-                    "MainController.initialize threw IOException",
-                    e
-            );
-        }
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            // Close log file
-            logWriter.close();
-        }));
-
-        // Setup transitions
-        Integer transitionDuration = 2000;
-
-        FadeTransition setup_vboxFT = new FadeTransition(Duration.millis(transitionDuration), setupVBox);
-        setup_vboxFT.setFromValue(1.0);
-        setup_vboxFT.setToValue(0.0);
-        TranslateTransition setup_vboxTT = new TranslateTransition(Duration.millis(transitionDuration), setupVBox);
-        setup_vboxTT.setFromX(0);
-        setup_vboxTT.setToX(-300);
-        setup_vboxPT = new ParallelTransition();
-        setup_vboxPT.getChildren().addAll(
-                setup_vboxFT,
-                setup_vboxTT
-        );
-
-        FadeTransition mining_vboxFT = new FadeTransition(Duration.millis(transitionDuration), miningVBox);
-        mining_vboxFT.setFromValue(0.0);
-        mining_vboxFT.setToValue(1.0);
-        TranslateTransition mining_vboxTT = new TranslateTransition(Duration.millis(transitionDuration), miningVBox);
-        mining_vboxTT.setFromX(300);
-        mining_vboxTT.setToX(0);
-        mining_vboxPT = new ParallelTransition();
-        mining_vboxPT.getChildren().addAll(
-                mining_vboxFT,
-                mining_vboxTT
-        );
-
-        garlic_imageRT = new RotateTransition(Duration.millis(3000), garlicImg);
-        garlic_imageRT.setByAngle(360);
-        garlic_imageRT.setCycleCount(Animation.INDEFINITE);
-        garlic_imageRT.setInterpolator(Interpolator.LINEAR);
-
-        // Radio buttons
-        ToggleGroup GPUToggleGroup = new ToggleGroup();
-        NvidiaRadioButton.setToggleGroup(GPUToggleGroup);
-        AMDRadioButton.setToggleGroup(GPUToggleGroup);
-
-        // Load all previous Settings from file using Settings class
-        Map<String, String> settingsObj = Settings.getSettings();
-        logText("Serialized Settings map loaded");
-
-        String gpu = settingsObj.get("GPUType");
-        if (gpu.equals("nvidia")) GPUToggleGroup.selectToggle(NvidiaRadioButton);
-        else GPUToggleGroup.selectToggle(AMDRadioButton);
-
-        minerPathTextField.setText(settingsObj.get("minerPath"));
-        GRLCAddressTextField.setText(settingsObj.get("GRLCAddress"));
-        poolAddressTextField.setText(settingsObj.get("poolAddress"));
-        minerIntensityTextField.setText(settingsObj.get("minerIntensity"));
-        minerFlagsTextField.setText(settingsObj.get("minerFlags"));
-    }
-
     private void logText(String text) {
-        DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        logWriter.println("[" + dateFormat.format(new Date()) + "] " + text);
+        if (GarlicGUILoggingChecked) {
+            DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+            logWriter.println("[" + dateFormat.format(new Date()) + "] " + text);
+        }
+    }
+    private void setupLogging() {
+        // Pull fresh settings from file and setup logging variables
+        Map<String, String> settingsObj = Settings.getSettings();
+        GarlicGUILoggingChecked = Boolean.parseBoolean(settingsObj.get("GarlicGUILogging"));
+        minerLoggingChecked = Boolean.parseBoolean(settingsObj.get("minerLogging"));
+        GarlicGUILoggingCheckBox.setSelected(GarlicGUILoggingChecked);
+        minerLoggingCheckBox.setSelected(minerLoggingChecked);
+
+        if (GarlicGUILoggingChecked) {
+            // Setup logging to file
+            try {
+                logWriter = new PrintWriter("GarlicGUI.log", "UTF-8");
+            } catch (IOException e) {
+                StacktraceAlert.create(
+                        "Log file error",
+                        "Cannot create new PrintWriter to GarlicGUI.log",
+                        "MainController.initialize threw IOException",
+                        e
+                );
+            }
+            // Close log file when program closed
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> logWriter.close()));
+        }
+    }
+    @FXML
+    private void openLogConfig() {
+        setupVBBoxPTOutLeft.play();
+        loggingConfigVBoxPTInRight.play();
+        loggingConfigVBox.toFront();
+    }
+    @FXML void backToSetup() {
+        // When leaving logging config screen, re-save settings then update all logging vars
+        saveSettings();
+        setupLogging();
+        setupVBBoxPTInLeft.play();
+        loggingConfigVBoxPTOutRight.play();
+        setupVBox.toFront();
     }
 
     @FXML

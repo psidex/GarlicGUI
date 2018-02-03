@@ -12,12 +12,14 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.CheckBox?>
 <StackPane minHeight="700" minWidth="900" prefHeight="700" prefWidth="900" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.view.MainController">
 
-    <VBox fx:id="setupVBox" alignment="CENTER" spacing="25">
+    <VBox fx:id="setupVBox" alignment="CENTER" spacing="20">
         <VBox alignment="CENTER">
-            <Label styleClass="title" text="GarlicGUI" textAlignment="CENTER"/>
-            <Hyperlink fx:id="helpLink" text="help" textAlignment="CENTER" onAction="#openHelp"/>
+            <!-- Place these 2 closer together -->
+            <Label styleClass="title" text="GarlicGUI" textAlignment="CENTER" />
+            <Hyperlink fx:id="helpLink" text="help" textAlignment="CENTER" onAction="#openHelp" />
         </VBox>
         <ImageView fx:id="garlicImg" fitHeight="227" fitWidth="227" preserveRatio="true">
             <Image url="@../images/garlicoin.png" />
@@ -53,10 +55,13 @@
                 <TextField fx:id="minerFlagsTextField" maxWidth="140" minWidth="140" promptText="e.g. --timeout=100" />
             </VBox>
         </HBox>
-        <Button fx:id="goButton" onAction="#loadMiner" text="Start Mining" />
+        <HBox alignment="CENTER" spacing="10">
+            <Button fx:id="configLogsButton" onAction="#openLogConfig" text="Configure Logging" />
+            <Button fx:id="goButton" onAction="#loadMiner" text="Start Mining" />
+        </HBox>
     </VBox>
 
-    <VBox fx:id="miningVBox" alignment="CENTER" opacity="0" spacing="30" visible="false">
+    <VBox fx:id="miningVBox" alignment="CENTER" opacity="0" spacing="30">
         <Label styleClass="title" text="GarlicGUI" textAlignment="CENTER" />
         <ImageView fitHeight="227" fitWidth="227" preserveRatio="true">
             <Image url="@../images/garlicoin.png" />
@@ -89,6 +94,18 @@
             <Label fx:id="rejectedSharesLabel" text="0" />
         </HBox>
         <Button onAction="#stopMiner" text="Stop Mining" />
+    </VBox>
+
+    <VBox fx:id="loggingConfigVBox" alignment="CENTER" opacity="0" spacing="30">
+        <HBox alignment="CENTER" minWidth="900" spacing="10">
+            <Label text="Write GarlicGUI output to file" />
+            <CheckBox fx:id="GarlicGUILoggingCheckBox" />
+        </HBox>
+        <HBox alignment="CENTER" minWidth="900" spacing="10">
+            <Label text="Write miner output to file" />
+            <CheckBox fx:id="minerLoggingCheckBox" />
+        </HBox>
+        <Button onAction="#backToSetup" text="Back to setup" />
     </VBox>
 
     <stylesheets>

@@ -10,22 +10,26 @@ public class CMDThread implements Runnable {
     private String cmdString;
     private String exeName;
     private PrintWriter logWriter;
+    private boolean loggingEnabled;
 
-    CMDThread(String to_execute, String minerExecutable, String logFileName) {
+    CMDThread(String toExecute, String minerExecutable, String logFileName, boolean loggingEnabledParam) {
 
-        try {
-            logWriter = new PrintWriter(logFileName, "UTF-8");
-        } catch (IOException e) {
-            StacktraceAlert.create(
-                    "Log file error",
-                    "Cannot create new PrintWriter to " + logFileName,
-                    "CMDThread.logWriter threw IOException",
-                    e
-            );
+        if (loggingEnabledParam) {
+            try {
+                logWriter = new PrintWriter(logFileName, "UTF-8");
+            } catch (IOException e) {
+                StacktraceAlert.create(
+                        "Log file error",
+                        "Cannot create new PrintWriter to " + logFileName,
+                        "CMDThread.logWriter threw IOException",
+                        e
+                );
+            }
         }
 
-        cmdString = to_execute;
+        cmdString = toExecute;
         exeName = minerExecutable;
+        loggingEnabled = loggingEnabledParam;
 
     }
 
@@ -48,7 +52,7 @@ public class CMDThread implements Runnable {
                     // Do nothing
                 }
                 // Finally, close log file
-                logWriter.close();
+                if (loggingEnabled) logWriter.close();
             }));
 
             BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -58,7 +62,7 @@ public class CMDThread implements Runnable {
                 String line = r.readLine();
                 if (line == null) break;
                 // Don't log API info (no point, will just create massive file)
-                if (!line.contains("API: ") && !line.trim().equals("") && !line.trim().equals("'")) logWriter.println(line);
+                if (!line.contains("API: ") && !line.trim().equals("") && !line.trim().equals("'") && loggingEnabled) logWriter.println(line);
             }
 
         }
