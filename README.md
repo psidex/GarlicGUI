@@ -12,6 +12,8 @@ The IP:Port used for the API is `127.0.0.1:4028`
 
 ## Requirements
 
+[Java](https://java.com/en/download/)
+
 Find the latest build for your GPUs miner:
 
 [CCMiner](https://github.com/tpruvot/ccminer/releases) | [SGminer](https://github.com/nicehash/sgminer-gm/releases)
