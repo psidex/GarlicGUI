@@ -71,6 +71,7 @@ public class MainController {
     @FXML
     CheckBox GarlicGUILoggingCheckBox, minerLoggingCheckBox;
 
+    // When the windows first loads
     public void initialize() {
         // Focus on the only visible VBox
         setupVBox.toFront();
@@ -87,12 +88,12 @@ public class MainController {
         garlicImageRT.setCycleCount(Animation.INDEFINITE);
         garlicImageRT.setInterpolator(Interpolator.LINEAR);
 
-        // Radio buttons
+        // Setup radio buttons
         ToggleGroup GPUToggleGroup = new ToggleGroup();
         NvidiaRadioButton.setToggleGroup(GPUToggleGroup);
         AMDRadioButton.setToggleGroup(GPUToggleGroup);
 
-        // Load all previous Settings from file using Settings class
+        // Load all previous settings from file using Settings class
         Map<String, String> settingsObj = Settings.getSettings();
         logText("Serialized Settings map loaded");
 
@@ -106,6 +107,7 @@ public class MainController {
         minerIntensityTextField.setText(settingsObj.get("minerIntensity"));
         minerFlagsTextField.setText(settingsObj.get("minerFlags"));
 
+        // Setup logging
         setupLogging();
     }
 
@@ -124,7 +126,7 @@ public class MainController {
         minerPathTextField.setText(selectedFile.toString());
     }
     @FXML
-    private void loadMiner(){
+    private void loadAndRunMiner(){
         // Get all options
         String minerPath = minerPathTextField.getText().trim();
         String poolAddress = poolAddressTextField.getText().trim();
@@ -229,7 +231,7 @@ public class MainController {
                     miningVBox.toFront();
                 });
 
-                // Get summary results from the API every second and update labels
+                // Get summary results from the API as much as possiblee and update labels
                 // ToDo: Implement dev api (gpu usage, temp, etc.)
                 while (true) {
                     if (AMDRadioButton.isSelected()) amdUpdateInfo(minerSocket);

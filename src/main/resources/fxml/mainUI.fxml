@@ -57,7 +57,7 @@
         </HBox>
         <HBox alignment="CENTER" spacing="10">
             <Button fx:id="configLogsButton" onAction="#openLogConfig" text="Configure Logging" />
-            <Button fx:id="goButton" onAction="#loadMiner" text="Start Mining" />
+            <Button fx:id="goButton" onAction="#loadAndRunMiner" text="Start Mining" />
         </HBox>
     </VBox>
 
