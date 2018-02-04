@@ -8,7 +8,7 @@ import javafx.util.Duration;
 
 public class Fade {
 
-    private static Integer transitionDuration = 1000;
+    private static Integer transitionDuration = 400;
 
     public static ParallelTransition createFadeOutLeft(VBox VBoxToFade) {
         // Will become more opaque and translate from the centre towards the left side

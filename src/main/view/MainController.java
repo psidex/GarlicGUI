@@ -231,8 +231,7 @@ public class MainController {
                     miningVBox.toFront();
                 });
 
-                // Get summary results from the API as much as possiblee and update labels
-                // ToDo: Implement dev api (gpu usage, temp, etc.)
+                // Get summary results from the API as much as possible and update labels
                 while (true) {
                     if (AMDRadioButton.isSelected()) amdUpdateInfo(minerSocket);
                     else nvidiaUpdateInfo(minerSocket);
