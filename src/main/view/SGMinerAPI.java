@@ -12,7 +12,6 @@ public class SGMinerAPI {
     public static JSONObject pingInfo(SocketObject socket) throws IOException {
         // For some reason the API only responds to 1 request, so a new connection has to be made for each api request
         socket.startConnection("127.0.0.1", 4028);
-
         String resp = socket.sendMessage("{\"command\": \"summary\"}");
         socket.stopConnection();
 

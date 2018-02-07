@@ -68,7 +68,7 @@ public class CMDThread implements Runnable {
         }
 
         catch (IOException e) {
-            StacktraceAlert.create("IOException", "Error in sgminer.exe thread", "IOException in sgminer.exe thread", e);
+            StacktraceAlert.create("IOException", "Error in miner thread", "IOException in miner thread", e);
         }
 
     }

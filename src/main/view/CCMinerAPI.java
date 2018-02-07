@@ -9,7 +9,6 @@ public class CCMinerAPI {
     // Takes an already established socket and gets info from CCMiner api
     public static Map<String, String> pingInfo(SocketObject socket) throws IOException {
         socket.startConnection("127.0.0.1", 4028);
-
         String resp = socket.sendMessage("summary");
         socket.stopConnection();
 

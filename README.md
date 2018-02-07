@@ -12,16 +12,18 @@ The IP:Port used for the API is `127.0.0.1:4028`
 
 ## Requirements
 
- - [Java](https://java.com/en/download/)
-
+ - [Java](https://java.com/en/download/) >= version 8
  - [CCMiner](https://github.com/tpruvot/ccminer/releases) (Nvidia) OR [SGminer](https://github.com/nicehash/sgminer-gm/releases) (AMD)
+
+## Development Requirements
+
+ - JDK >= version 8
+ - [org.json](https://mvnrepository.com/artifact/org.json/json)
 
 ## Instructions
 
  - Test that the miner works by itself before using this GUI
-
  - Make sure `Settings/Settings.ser` exists in the same directory as `GarlicGUI.jar`
-
  - You can use the "Extra miner flags" box to put extra flags such as pool username & password, max-temp for Nvidia GPUs, etc.
 
 The GUI only supplies these options to the miner by default:

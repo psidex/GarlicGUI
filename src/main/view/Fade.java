@@ -11,7 +11,7 @@ public class Fade {
     private static Integer transitionDuration = 400;
 
     public static ParallelTransition createFadeOutLeft(VBox VBoxToFade) {
-        // Will become more opaque and translate from the centre towards the left side
+        // Will become less opaque and translate from the centre towards the left side
         FadeTransition newFadeTrans = new FadeTransition(Duration.millis(transitionDuration), VBoxToFade);
         newFadeTrans.setFromValue(1.0);
         newFadeTrans.setToValue(0.0);
@@ -42,7 +42,7 @@ public class Fade {
     }
 
     public static ParallelTransition createFadeInRight(VBox VBoxToFade) {
-        // Will become less opaque and translate towards the centre from the right side
+        // Will become more opaque and translate towards the centre from the right side
         FadeTransition newFadeTrans = new FadeTransition(Duration.millis(transitionDuration), VBoxToFade);
         newFadeTrans.setFromValue(0.0);
         newFadeTrans.setToValue(1.0);
