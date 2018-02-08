@@ -1,3 +1,6 @@
+**Source:**
+ - Clean up `Fade.java`
+
 **Settings:**
  - Move `/settings/settings.ser` to just `/settings.ser`
  - Don't include `settings.clean.ser` in releases
