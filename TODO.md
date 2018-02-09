@@ -1,3 +1,6 @@
+**Miners:**
+ - Test if mining works without GPU env vars
+
 **Source:**
  - Clean up `Fade.java`
 
